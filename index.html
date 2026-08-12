@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Workin'Store — Sistema Gerencial</title>
+<link rel="icon" type="image/x-icon" href="fav.ico">
+<meta name="description" content="Sistema gerencial completo para loja de produtos eletrônicos: estoque com preço médio, kits, financeiro e relatórios." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div id="loginScreen" class="login-wrap">
+  <form id="loginForm" class="login-card" autocomplete="on">
+    <div class="logo-box">
+      <img id="loginLogo" src="logo.png" alt="Logo da empresa" width="128" height="128" />
+      <div id="loginLogoFallback" class="logo-fallback">128×128</div>
+    </div>
+    <h1 class="login-title">Acessar o sistema</h1>
+    <p class="login-sub">Gestão de estoque, kits, financeiro e relatórios</p>
+
+    <label class="field">
+      <span>E-mail</span>
+      <input type="email" id="loginEmail" placeholder="voce@empresa.com" required />
+    </label>
+    <label class="field">
+      <span>Senha</span>
+      <div class="pw">
+        <input type="password" id="loginPass" placeholder="••••••••" required />
+        <button type="button" class="pw-toggle" data-target="loginPass">👁</button>
+      </div>
+    </label>
+
+    <div id="loginError" class="alert hidden"></div>
+    <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Entrar</button>
+    <button type="button" class="link-btn" id="openForgot">Esqueci minha senha</button>
+    <div class="login-foot">Pressione <kbd>Enter</kbd> para entrar</div>
+  </form>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app" class="app hidden">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <img id="sideLogo" class="brand-logo" alt="" />
+      <div>
+        <strong id="brandName">Gestor</strong>
+        <small>Workin'Store</small>
+      </div>
+    </div>
+    <nav class="nav" id="nav">
+      <button class="nav-item active" data-view="dashboard" data-perm="dashboard"><span>▤</span>Dashboard</button>
+      <button class="nav-item" data-view="produtos" data-perm="produtos"><span>◫</span>Cadastro de Itens</button>
+      <button class="nav-item" data-view="kits" data-perm="kits"><span>◎</span>Kits</button>
+      <button class="nav-item" data-view="estoque" data-perm="estoque"><span>▥</span>Estoque / Compras</button>
+      <button class="nav-item" data-view="vendas" data-perm="vendas"><span>₪</span>Vendas</button>
+      <button class="nav-item" data-view="financeiro" data-perm="financeiro"><span>◈</span>Financeiro</button>
+      <button class="nav-item" data-view="despesas" data-perm="despesas"><span>⛽</span>Despesas Gerais</button>
+      <button class="nav-item" data-view="relatorios" data-perm="relatorios"><span>◔</span>Relatórios</button>
+      <button class="nav-item" data-view="usuarios" data-perm="usuarios"><span>☺</span>Usuários & Permissões</button>
+      <button class="nav-item" data-view="perfil" data-perm="perfil"><span>✎</span>Perfil</button>
+      <button class="nav-item" data-view="config" data-perm="config"><span>⚙</span>Configurações</button>
+    </nav>
+    <div class="side-foot">
+      <div class="user-chip">
+        <div class="avatar" id="avatarInitials">--</div>
+        <div class="uinfo"><strong id="sideUserName">Usuário</strong><small id="sideUserRole">—</small></div>
+      </div>
+      <button class="btn btn-ghost btn-block" id="logoutBtn">Sair</button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn" id="menuToggle">☰</button>
+      <h2 id="viewTitle">Dashboard</h2>
+      <div class="spacer"></div>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="densityBtn" title="Densidade da interface">⇕</button>
+        <button class="icon-btn" id="themeBtn" title="Alternar tema">☾</button>
+      </div>
+    </header>
+    <main class="content" id="content"></main>
+  </div>
+</div>
+
+<!-- ============ MODAIS ============ -->
+<div class="modal-backdrop hidden" id="modalBackdrop">
+  <div class="modal" id="modal">
+    <div class="modal-head"><h3 id="modalTitle">Título</h3><button class="icon-btn" id="modalClose">✕</button></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot" id="modalFoot"></div>
+  </div>
+</div>
+
+<div class="modal-backdrop hidden" id="forgotBackdrop">
+  <div class="modal modal-sm">
+    <div class="modal-head"><h3>Redefinir senha</h3><button class="icon-btn" id="forgotClose">✕</button></div>
+    <form id="forgotForm" class="modal-body">
+      <p class="muted">Digite seu e-mail cadastrado. Enviaremos um link para redefinição de senha.</p>
+      <label class="field"><span>E-mail</span><input type="email" id="forgotEmail" required placeholder="voce@empresa.com" /></label>
+      <div id="forgotMsg" class="alert hidden"></div>
+      <button class="btn btn-primary btn-block" type="submit">Enviar link</button>
+    </form>
+  </div>
+</div>
+
+<div id="toasts" class="toasts"></div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
