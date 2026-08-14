@@ -1,116 +1,347 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="dark">
+<html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Workin'Store — Sistema Gerencial</title>
-<link rel="icon" type="image/x-icon" href="fav.ico">
-<meta name="description" content="Sistema gerencial completo para loja de produtos eletrônicos: estoque com preço médio, kits, financeiro e relatórios." />
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workin'Store | Portal</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="description" content="Catálogo de produtos gamer com menu personalizável, admin exclusivo e integração Firebase.">
+  <link rel="icon" type="image/x-icon" href="fav.ico">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- ============ LOGIN ============ -->
-<div id="loginScreen" class="login-wrap">
-  <form id="loginForm" class="login-card" autocomplete="on">
-    <div class="logo-box">
-      <img id="loginLogo" src="logo.png" alt="Logo da empresa" width="128" height="128" />
-      <div id="loginLogoFallback" class="logo-fallback">128×128</div>
-    </div>
-    <h1 class="login-title">Acessar o sistema</h1>
-    <p class="login-sub">Gestão de estoque, kits, financeiro e relatórios</p>
+  <!-- Header / Navbar -->
+  <header id="main-header">
+    <nav>
+      <a href="#" class="brand-area">
+        <img id="logo-square" class="logo-square" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Logo quadrado">
+        <img id="logo-wide" class="logo-wide hidden" src="" alt="Logo escrito">
+      </a>
 
-    <label class="field">
-      <span>E-mail</span>
-      <input type="email" id="loginEmail" placeholder="voce@empresa.com" required />
-    </label>
-    <label class="field">
-      <span>Senha</span>
-      <div class="pw">
-        <input type="password" id="loginPass" placeholder="••••••••" required />
-        <button type="button" class="pw-toggle" data-target="loginPass">👁</button>
-      </div>
-    </label>
+      <ul class="menu-desktop" id="menu-desktop">
+        <!-- Menu renderizado via JS -->
+      </ul>
 
-    <div id="loginError" class="alert hidden"></div>
-    <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Entrar</button>
-    <button type="button" class="link-btn" id="openForgot">Esqueci minha senha</button>
-    <div class="login-foot">Pressione <kbd>Enter</kbd> para entrar</div>
-  </form>
-</div>
-
-<!-- ============ APP ============ -->
-<div id="app" class="app hidden">
-  <aside class="sidebar" id="sidebar">
-    <div class="brand">
-      <img id="sideLogo" class="brand-logo" alt="" />
-      <div>
-        <strong id="brandName">Gestor</strong>
-        <small>Workin'Store</small>
-      </div>
-    </div>
-    <nav class="nav" id="nav">
-      <button class="nav-item active" data-view="dashboard" data-perm="dashboard"><span>▤</span>Dashboard</button>
-      <button class="nav-item" data-view="produtos" data-perm="produtos"><span>◫</span>Cadastro de Itens</button>
-      <button class="nav-item" data-view="kits" data-perm="kits"><span>◎</span>Kits</button>
-      <button class="nav-item" data-view="estoque" data-perm="estoque"><span>▥</span>Estoque / Compras</button>
-      <button class="nav-item" data-view="vendas" data-perm="vendas"><span>₪</span>Vendas</button>
-      <button class="nav-item" data-view="financeiro" data-perm="financeiro"><span>◈</span>Financeiro</button>
-      <button class="nav-item" data-view="despesas" data-perm="despesas"><span>⛽</span>Despesas Gerais</button>
-      <button class="nav-item" data-view="relatorios" data-perm="relatorios"><span>◔</span>Relatórios</button>
-      <button class="nav-item" data-view="usuarios" data-perm="usuarios"><span>☺</span>Usuários & Permissões</button>
-      <button class="nav-item" data-view="perfil" data-perm="perfil"><span>✎</span>Perfil</button>
-      <button class="nav-item" data-view="config" data-perm="config"><span>⚙</span>Configurações</button>
+      <button class="menu-toggle-btn" onclick="toggleMobileMenu()" aria-label="Abrir menu">☰</button>
     </nav>
-    <div class="side-foot">
-      <div class="user-chip">
-        <div class="avatar" id="avatarInitials">--</div>
-        <div class="uinfo"><strong id="sideUserName">Usuário</strong><small id="sideUserRole">—</small></div>
-      </div>
-      <button class="btn btn-ghost btn-block" id="logoutBtn">Sair</button>
+  </header>
+
+  <!-- Mobile menu -->
+  <div class="mobile-menu" id="mobile-menu">
+    <ul id="mobile-menu-list">
+      <!-- Menu mobile renderizado via JS -->
+    </ul>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1>Workin'Store</h1>
+    <p>Melhores produtos, Kits OPL, pendrives, Memory Cards PS2, cabos de celular e carregadores, o melhor atendimento sempre e envios de Kits OPL para todo o Brasil.</p>
+  </section>
+
+  <!-- Catálogo -->
+  <section id="produtos" class="catalogo">
+    <h2>Nossos Produtos</h2>
+    <div class="search-wrap">
+      <span class="search-icon">🔎</span>
+      <input type="search" id="produto-search" class="search-input" placeholder="Buscar produtos por nome, descrição ou cidade..." autocomplete="off">
+      <button type="button" id="search-clear" class="search-clear hidden" aria-label="Limpar busca">×</button>
     </div>
-  </aside>
+    <p class="search-info hidden" id="search-info"></p>
+    <div class="grid" id="produtos-grid">
+      <!-- Cards renderizados via JS -->
+    </div>
+    <div class="pagination" id="pagination">
+      <!-- Paginação via JS -->
+    </div>
+  </section>
 
-  <div class="main">
-    <header class="topbar">
-      <button class="icon-btn" id="menuToggle">☰</button>
-      <h2 id="viewTitle">Dashboard</h2>
-      <div class="spacer"></div>
-      <div class="topbar-actions">
-        <button class="icon-btn" id="densityBtn" title="Densidade da interface">⇕</button>
-        <button class="icon-btn" id="themeBtn" title="Alternar tema">☾</button>
+
+  <!-- Footer -->
+  <footer>
+    <div class="banner-slider hidden" id="banner-slider">
+      <div class="banner-track" id="banner-track"></div>
+      <button class="banner-arrow prev" id="banner-prev" aria-label="Banner anterior">‹</button>
+      <button class="banner-arrow next" id="banner-next" aria-label="Próximo banner">›</button>
+      <div class="banner-dots" id="banner-dots"></div>
+    </div>
+    <div class="footer-content" id="footer-columns">
+      <!-- Colunas via JS -->
+    </div>
+    <div class="footer-bottom">
+      <p id="footer-copyright">© Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- Área restrita discreta -->
+  <div class="restricted-dot" id="restricted-dot" title="Área restrita"></div>
+
+  <!-- Modal Administrativo -->
+  <div class="modal-overlay" id="admin-modal">
+    <div class="modal admin-modal">
+      <div class="modal-header">
+        <h3>⚙️ Painel Administrativo</h3>
+        <button class="modal-close" aria-label="Fechar">×</button>
       </div>
-    </header>
-    <main class="content" id="content"></main>
+      <div class="admin-modal-body">
+        <aside class="admin-nav">
+          <button class="tab-btn active" id="btn-produtos-tab">📦 Produtos</button>
+          <button class="tab-btn" id="btn-menu-tab">🧭 Menu</button>
+          <button class="tab-btn" id="btn-brand-tab">🎨 Marca</button>
+          <button class="tab-btn" id="btn-banners-tab">🖼️ Banners</button>
+          <button class="tab-btn" id="btn-footer-tab">📄 Rodapé</button>
+          <button id="logout-btn" class="btn-danger admin-logout" type="button">Sair</button>
+        </aside>
+        <div class="admin-content">
+    <!-- Produtos -->
+          <div id="produtos-tab" class="admin-section active">
+            <h3 id="produto-form-title">Adicionar produto</h3>
+            <form id="produto-form">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="produto-titulo">Título</label>
+                  <input type="text" id="produto-titulo" required>
+                </div>
+                <div class="form-group">
+                  <label for="produto-preco">Preço</label>
+                  <input type="number" id="produto-preco" step="0.01" required>
+                </div>
+                <div class="form-group full">
+                  <label for="produto-descricao">Descrição</label>
+                  <textarea id="produto-descricao" required></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="produto-cidades">Cidades / Local de venda</label>
+                  <input type="text" id="produto-cidades" placeholder="Ex: Nacional ou São Paulo, Rio de Janeiro">
+                </div>
+                <div class="form-group">
+                  <label for="produto-comprar">Link de compra</label>
+                  <input type="url" id="produto-comprar" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                  <label for="produto-imagem-file">Imagem do produto (arquivo)</label>
+                  <input type="file" id="produto-imagem-file" accept="image/*">
+                </div>
+                <div class="form-group">
+                  <label for="produto-imagem-url">ou imagem por link externo</label>
+                  <input type="url" id="produto-imagem-url" placeholder="https://...">
+                </div>
+                <div class="form-group full">
+                  <label>Gatilhos de marketing</label>
+                  <div id="triggers-options"></div>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn-save">Salvar produto</button>
+                <button type="button" id="produto-cancel" class="btn-cancel hidden">Cancelar</button>
+              </div>
+            </form>
+
+            <h3 style="margin-top:2rem;">Produtos cadastrados</h3>
+            <div class="admin-list" id="produtos-list">
+              <!-- Lista via JS -->
+            </div>
+          </div>
+
+          <!-- Menu -->
+          <div id="menu-tab" class="admin-section">
+            <div class="help-text">
+              <strong>Como criar um menu misto (links diretos + submenus):</strong><br>
+              • Para um <strong>link direto</strong> no topo, preencha <em>Nome</em> e <em>Link</em> e deixe <em>Item pai</em> como "Nenhum".<br>
+              • Para criar um <strong>submenu</strong>, primeiro cadastre o item de topo (pode deixar o link em branco). Depois, ao cadastrar um novo item, selecione esse item como <em>Item pai</em>. O sistema detecta automaticamente: itens com filhos viram botões de submenu; itens sem filhos viram links diretos.<br>
+              • Os subitens sempre aparecem como links dentro do menu expandido.
+            </div>
+
+            <h3 id="menu-form-title">Adicionar item de menu</h3>
+            <form id="menu-form">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="menu-name">Nome</label>
+                  <input type="text" id="menu-name" required>
+                </div>
+                <div class="form-group">
+                  <label for="menu-link">Link</label>
+                  <input type="text" id="menu-link" placeholder="#produtos ou https://...">
+                </div>
+                <div class="form-group">
+                  <label for="menu-parent">Item pai</label>
+                  <select id="menu-parent">
+                    <option value="">Nenhum (item de topo)</option>
+                    <!-- Preenchido via JS -->
+                  </select>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn-save">Salvar item</button>
+                <button type="button" id="menu-cancel" class="btn-cancel hidden">Cancelar</button>
+              </div>
+            </form>
+
+            <h3 style="margin-top:2rem;">Itens do menu</h3>
+            <div class="admin-list" id="menu-list">
+              <!-- Lista via JS -->
+            </div>
+          </div>
+
+          <!-- Marca -->
+          <div id="brand-tab" class="admin-section">
+            <h3>Logo e identidade</h3>
+            <form id="brand-form">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="brand-square-file">Logo quadrada (arquivo)</label>
+                  <input type="file" id="brand-square-file" accept="image/*">
+                </div>
+                <div class="form-group">
+                  <label for="brand-square-url">ou logo quadrada por link</label>
+                  <input type="url" id="brand-square-url" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                  <label for="brand-wide-file">Logo escrita larga (arquivo)</label>
+                  <input type="file" id="brand-wide-file" accept="image/*">
+                </div>
+                <div class="form-group">
+                  <label for="brand-wide-url">ou logo escrita por link</label>
+                  <input type="url" id="brand-wide-url" placeholder="https://...">
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn-save">Salvar marca</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Banners -->
+          <div id="banners-tab" class="admin-section">
+            <div class="help-text">
+              <strong>Banners do rodapé (900x220px recomendado):</strong><br>
+              • Envie uma imagem por arquivo (convertida em base64) ou informe a URL de uma imagem hospedada.<br>
+              • Arraste os itens da lista para definir a ordem de exibição no slider.<br>
+              • Se não houver nenhum banner cadastrado, a área de banners não aparece no site.
+            </div>
+            <h3 id="banner-form-title">Adicionar banner</h3>
+            <form id="banner-form">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="banner-file">Imagem (arquivo 900x220)</label>
+                  <input type="file" id="banner-file" accept="image/*">
+                </div>
+                <div class="form-group">
+                  <label for="banner-url">ou imagem por link externo</label>
+                  <input type="url" id="banner-url" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                  <label for="banner-title">Título / descrição (alt)</label>
+                  <input type="text" id="banner-title" placeholder="Ex: Promoção Kits OPL">
+                </div>
+                <div class="form-group">
+                  <label for="banner-link">Link ao clicar (opcional)</label>
+                  <input type="url" id="banner-link" placeholder="https://...">
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn-save">Salvar banner</button>
+                <button type="button" id="banner-cancel" class="btn-cancel hidden">Cancelar</button>
+              </div>
+            </form>
+            <h3 style="margin-top:2rem;">Banners cadastrados</h3>
+            <div class="admin-list" id="banners-list"></div>
+          </div>
+
+          <!-- Rodapé -->
+          <div id="footer-tab" class="admin-section">
+            <h3>Rodapé</h3>
+            <form id="footer-form">
+              <div class="form-grid">
+                <div class="form-group full">
+                  <label for="footer-copyright">Texto de direitos reservados</label>
+                  <input type="text" id="footer-copyright-input">
+                </div>
+                <div class="form-group full">
+                  <label for="footer-columns-json">Colunas e links (JSON)</label>
+                  <textarea id="footer-columns-json" rows="10"></textarea>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn-save">Salvar rodapé</button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </div>
   </div>
-</div>
 
-<!-- ============ MODAIS ============ -->
-<div class="modal-backdrop hidden" id="modalBackdrop">
-  <div class="modal" id="modal">
-    <div class="modal-head"><h3 id="modalTitle">Título</h3><button class="icon-btn" id="modalClose">✕</button></div>
-    <div class="modal-body" id="modalBody"></div>
-    <div class="modal-foot" id="modalFoot"></div>
+  <!-- Modal Login -->
+  <div class="modal-overlay" id="login-modal">
+    <div class="modal" style="max-width:420px;">
+      <div class="modal-header">
+        <h3>Área restrita</h3>
+        <button class="modal-close" aria-label="Fechar">×</button>
+      </div>
+      <div class="modal-body">
+        <div id="login-loader" class="login-loader">
+          <div class="spinner"></div>
+          <p class="login-message">Autenticando...</p>
+        </div>
+        <form id="login-form">
+          <div class="form-grid">
+            <div class="form-group full">
+              <label for="login-email">E-mail</label>
+              <input type="email" id="login-email" required autofocus>
+            </div>
+            <div class="form-group full">
+              <label for="login-password">Senha</label>
+              <input type="password" id="login-password" required>
+            </div>
+          </div>
+          <button type="submit" class="btn-primary" style="margin-top:1rem;">Entrar</button>
+        </form>
+      </div>
+    </div>
   </div>
-</div>
 
-<div class="modal-backdrop hidden" id="forgotBackdrop">
-  <div class="modal modal-sm">
-    <div class="modal-head"><h3>Redefinir senha</h3><button class="icon-btn" id="forgotClose">✕</button></div>
-    <form id="forgotForm" class="modal-body">
-      <p class="muted">Digite seu e-mail cadastrado. Enviaremos um link para redefinição de senha.</p>
-      <label class="field"><span>E-mail</span><input type="email" id="forgotEmail" required placeholder="voce@empresa.com" /></label>
-      <div id="forgotMsg" class="alert hidden"></div>
-      <button class="btn btn-primary btn-block" type="submit">Enviar link</button>
-    </form>
+  <!-- Modal Produto -->
+  <div class="modal-overlay" id="produto-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-title">Produto</h3>
+        <button class="modal-close" aria-label="Fechar">×</button>
+      </div>
+      <div class="modal-body">
+        <img id="modal-img" class="modal-img" src="" alt="Produto">
+        <p id="modal-desc" class="modal-desc"></p>
+        <div id="modal-triggers" class="modal-triggers"></div>
+        <div class="modal-info">
+          <div class="info-box">
+            <label>Disponibilidade</label>
+            <span id="modal-cities"></span>
+          </div>
+          <div class="info-box">
+            <label>Preço</label>
+            <span id="modal-price"></span>
+          </div>
+        </div>
+        <a id="modal-buy" href="#" class="btn-primary" target="_blank">Comprar agora</a>
+      </div>
+    </div>
   </div>
-</div>
 
-<div id="toasts" class="toasts"></div>
+<a href="https://wa.me/5588988470190" target="_blank" class="whatsapp-float">
+    		<img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+		</a>
+  
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
 
-<script type="module" src="app.js"></script>
+  <!-- Firebase -->
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <script src="script.js"></script>
 </body>
 </html>
