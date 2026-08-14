@@ -34,27 +34,92 @@
     </ul>
   </div>
 
-  <!-- Hero -->
+   <!-- Hero -->
   <section class="hero">
-    <h1>Workin'Store</h1>
-    <p>Melhores produtos, Kits OPL, pendrives, Memory Cards PS2, cabos de celular e carregadores, o melhor atendimento sempre e envios de Kits OPL para todo o Brasil.</p>
-  </section>
+    <section class="catalogo" id="youtube-section" style="padding-top: 40px;">
+    <!-- Barra de Busca -->
+    <div class="form-group" style="margin-bottom: 2rem;">
+        <input type="text" id="yt-search-input" placeholder="Pesquisar vídeos do canal..." class="form-control">
+    </div>
 
-  <!-- Catálogo -->
-  <section id="produtos" class="catalogo">
-    <h2>Nossos Produtos</h2>
-    <div class="search-wrap">
-      <span class="search-icon">🔎</span>
-      <input type="search" id="produto-search" class="search-input" placeholder="Buscar produtos por nome, descrição ou cidade..." autocomplete="off">
-      <button type="button" id="search-clear" class="search-clear hidden" aria-label="Limpar busca">×</button>
+    <!-- Player Ampliado -->
+    <div id="yt-player-wrapper" style="width: 100%; aspect-ratio: 16/9; display: flex; justify-content: center; align-items: center; margin-bottom: 2.5rem; border: 1px solid var(--primary); border-radius: var(--radius); overflow: hidden; background: var(--bg); box-shadow: var(--shadow);">
+        <!-- O player será carregado aqui -->
+        <div style="display: flex; justify-content: center; align-items: center; height: 100%; color: var(--text-muted);">
+            Carregando player...
+        </div>
     </div>
-    <p class="search-info hidden" id="search-info"></p>
-    <div class="grid" id="produtos-grid">
-      <!-- Cards renderizados via JS -->
+
+    <!-- Grid de Vídeos (Forçado 3 por linha) -->
+    <div class="grid" id="yt-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <!-- Os vídeos serão carregados aqui -->
     </div>
-    <div class="pagination" id="pagination">
-      <!-- Paginação via JS -->
-    </div>
+
+    <style>
+        @media (max-width: 240px) { .grid { grid-template-columns: repeat(2, 1fr) !important; } }
+        @media (max-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr) !important; } }
+        @media (max-width: 640px) { .grid { grid-template-columns: white-space(nowrap) } }
+        @media (max-width: 640px) { .grid { grid-template-columns: overflow(hidden) } }
+        @media (max-width: 640px) { .grid { grid-template-columns: text-overflow(ellipsis) } }
+}
+    </style>
+</section>
+
+<script>
+    // --- CONFIGURAÇÃO ---
+    const API_KEY = 'AIzaSyDHkLh2vGgxUJpVo11o1kKqtH1DQ5Toeu4'; // <--- INSIRA SUA CHAVE AQUI
+    const CHANNEL_ID = 'UCwgc-ODtpi4OKxnbYGmyTig'; // <--- INSIRA SEU ID DE CANAL AQUI
+    // --------------------
+
+    async function loadVideos() {
+        const url = `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=snippet,id&order=date&maxResults=15&type=video`;
+        
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            const grid = document.getElementById('yt-grid');
+            grid.innerHTML = '';
+            
+            data.items.forEach((video, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <img src="${video.snippet.thumbnails.high.url}" alt="${video.snippet.title}" class="card-img">
+                    <div class="card-body">
+                        <h3 class="card-title">${video.snippet.title}</h3>
+                        <p class="card-desc">${video.snippet.description || 'Sem descrição.'}</p>
+                    </div>
+                `;
+                card.onclick = () => playVideo(video.id.videoId);
+                grid.appendChild(card);
+                
+                // Player inicial com o primeiro vídeo
+                if(index === 0) playVideo(video.id.videoId);
+            });
+        } catch (error) {
+            console.error('Erro ao carregar vídeos:', error);
+            document.getElementById('yt-grid').innerHTML = '<p>Erro ao carregar vídeos. Verifique sua chave API.</p>';
+        }
+    }
+
+    function playVideo(videoId) {
+        const wrapper = document.getElementById('yt-player-wrapper');
+        wrapper.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${videoId}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
+        window.scrollTo({ top: document.getElementById('youtube-section').offsetTop - 100, behavior: 'smooth' });
+    }
+
+    // Filtro de busca (Interage com os títulos dos cards)
+    document.getElementById('yt-search-input').addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+        document.querySelectorAll('.card').forEach(card => {
+            const title = card.querySelector('.card-title').innerText.toLowerCase();
+            card.style.display = title.includes(term) ? '' : 'none';
+        });
+    });
+
+    loadVideos();
+</script>
+
   </section>
 
 
