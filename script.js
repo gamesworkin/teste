@@ -364,9 +364,10 @@ function renderAdminMenu() {
   const parentSelect = document.getElementById("menu-parent");
   if (!list) return;
 
-  const buildRow = (item, isChild) => `
+  const buildRow = (item, isChild, index) => `
       <div class="admin-list-item draggable${isChild ? " sub-indent" : ""}" draggable="true" data-id="${item.id}">
         <span class="drag-handle" title="Arraste para reordenar">⠿</span>
+        <input type="number" class="order-input" min="1" step="1" value="${index + 1}" data-id="${item.id}" title="Posição (digite o número e pressione Enter)">
         <div>
           <strong>${escapeHtml(item.name)}</strong>
           <br><small>${item.link ? "Link: " + escapeHtml(item.link) : "Sem link (pai de submenu)"}</small>
@@ -380,10 +381,10 @@ function renderAdminMenu() {
 
   const tops = state.menu.filter((m) => !m.parentId).sort(byOrder);
   list.innerHTML = `<div class="admin-drag-list" data-parent="">
-      ${tops.map((t) => buildRow(t, false) + (
+      ${tops.map((t, ti) => buildRow(t, false, ti) + (
         state.menu.filter((c) => c.parentId === t.id).length
           ? `<div class="admin-drag-list admin-list-group" data-parent="${t.id}">
-               ${state.menu.filter((c) => c.parentId === t.id).sort(byOrder).map((c) => buildRow(c, true)).join("")}
+               ${state.menu.filter((c) => c.parentId === t.id).sort(byOrder).map((c, ci) => buildRow(c, true, ci)).join("")}
              </div>`
           : ""
       )).join("")}
@@ -391,6 +392,7 @@ function renderAdminMenu() {
 
   list.querySelectorAll(".admin-drag-list").forEach((container) => {
     enableDragSort(container, (ids) => persistOrder("menu", ids));
+    enableOrderInputs(container, (ids) => persistOrder("menu", ids));
   });
 
   const topItems = state.menu.filter((m) => !m.parentId).sort(byOrder);
@@ -575,9 +577,10 @@ function openProdutoModal(id) {
 function renderAdminProdutos() {
   const list = document.getElementById("produtos-list");
   if (!list) return;
-  list.innerHTML = state.produtos.map((p) => `
+  list.innerHTML = state.produtos.map((p, i) => `
     <div class="admin-list-item draggable" draggable="true" data-id="${p.id}" data-group="produtos">
       <span class="drag-handle" title="Arraste para reordenar">⠿</span>
+      <input type="number" class="order-input" min="1" step="1" value="${i + 1}" data-id="${p.id}" title="Posição (digite o número e pressione Enter)">
       <div>
         <strong>${escapeHtml(p.title)}</strong>
         <br><small>${formatMoney(p.price)} — ${escapeHtml(p.description || "").substring(0, 60)}${p.description && p.description.length > 60 ? "..." : ""}</small>
@@ -590,6 +593,7 @@ function renderAdminProdutos() {
   `).join("");
 
   enableDragSort(list, (ids) => persistOrder("produtos", ids));
+  enableOrderInputs(list, (ids) => persistOrder("produtos", ids));
 }
 
 function renderTriggersOptions() {
@@ -735,6 +739,7 @@ function enableDragSort(container, onDrop) {
   items.forEach((item) => {
     item.addEventListener("dragstart", (e) => {
       if (!state.isAdmin) return e.preventDefault();
+      if (e.target && e.target.classList && e.target.classList.contains("order-input")) return e.preventDefault();
       container.dataset.dragging = item.dataset.id;
       item.classList.add("dragging");
       e.dataTransfer.effectAllowed = "move";
@@ -745,10 +750,8 @@ function enableDragSort(container, onDrop) {
       item.classList.remove("dragging");
       container.querySelectorAll(".drag-over").forEach((el) => el.classList.remove("drag-over"));
       delete container.dataset.dragging;
-      const ids = Array.from(container.children)
-        .filter((el) => el.classList.contains("draggable"))
-        .map((el) => el.dataset.id);
-      onDrop(ids);
+      refreshOrderInputs(container);
+      onDrop(getContainerIds(container));
     });
 
     item.addEventListener("dragover", (e) => {
@@ -769,6 +772,70 @@ function enableDragSort(container, onDrop) {
 
       const refNode = after ? block[block.length - 1].nextSibling : block[0];
       draggedBlock.forEach((node) => container.insertBefore(node, refNode));
+    });
+  });
+}
+
+/* Ordenação dinâmica por números */
+function getContainerBlocks(container) {
+  const blocks = [];
+  Array.from(container.children).forEach((el) => {
+    if (el.classList.contains("draggable")) {
+      blocks.push([el]);
+    } else if (blocks.length) {
+      blocks[blocks.length - 1].push(el);
+    }
+  });
+  return blocks;
+}
+
+function getContainerIds(container) {
+  return getContainerBlocks(container).map((b) => b[0].dataset.id);
+}
+
+function refreshOrderInputs(container) {
+  getContainerBlocks(container).forEach((block, index) => {
+    const input = block[0].querySelector(".order-input");
+    if (input) input.value = index + 1;
+  });
+}
+
+function moveBlockTo(container, id, targetIndex) {
+  const blocks = getContainerBlocks(container);
+  const from = blocks.findIndex((b) => b[0].dataset.id === id);
+  if (from < 0) return false;
+  const target = Math.max(0, Math.min(blocks.length - 1, targetIndex));
+  if (target === from) return false;
+  const [block] = blocks.splice(from, 1);
+  blocks.splice(target, 0, block);
+  const frag = document.createDocumentFragment();
+  blocks.forEach((b) => b.forEach((node) => frag.appendChild(node)));
+  container.appendChild(frag);
+  const moved = container.querySelector(`.draggable[data-id="${id}"]`);
+  if (moved) {
+    moved.classList.add("order-moved");
+    setTimeout(() => moved.classList.remove("order-moved"), 700);
+  }
+  return true;
+}
+
+function enableOrderInputs(container, onChange) {
+  if (!container) return;
+  container.querySelectorAll(".order-input").forEach((input) => {
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        input.blur();
+      }
+    });
+    input.addEventListener("change", () => {
+      if (!state.isAdmin) return;
+      const id = input.dataset.id;
+      const value = parseInt(input.value, 10);
+      if (isNaN(value)) return refreshOrderInputs(container);
+      const changed = moveBlockTo(container, id, value - 1);
+      refreshOrderInputs(container);
+      if (changed) onChange(getContainerIds(container));
     });
   });
 }
@@ -870,9 +937,10 @@ function renderAdminBanners() {
     return;
   }
 
-  list.innerHTML = state.banners.map((b) => `
+  list.innerHTML = state.banners.map((b, i) => `
     <div class="admin-list-item draggable" draggable="true" data-id="${b.id}">
       <span class="drag-handle" title="Arraste para reordenar">⠿</span>
+      <input type="number" class="order-input" min="1" step="1" value="${i + 1}" data-id="${b.id}" title="Posição (digite o número e pressione Enter)">
       <div>
         <img class="banner-thumb" src="${escapeHtml(b.image)}" alt="${escapeHtml(b.title || "Banner")}">
         <br><strong>${escapeHtml(b.title || "Sem título")}</strong>
@@ -886,6 +954,7 @@ function renderAdminBanners() {
   `).join("");
 
   enableDragSort(list, (ids) => persistOrder("banners", ids));
+  enableOrderInputs(list, (ids) => persistOrder("banners", ids));
 }
 
 async function saveBanner(e) {
