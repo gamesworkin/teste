@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workin'Store | Portal</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="description" content="Catálogo de produtos gamer com menu personalizável, admin exclusivo e integração Firebase.">
+  <link rel="icon" type="image/x-icon" href="fav.ico">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Header / Navbar -->
+  <header id="main-header">
+    <nav>
+      <a href="#" class="brand-area">
+        <img id="logo-square" class="logo-square" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Logo quadrado">
+        <img id="logo-wide" class="logo-wide hidden" src="" alt="Logo escrito">
+      </a>
+
+      <ul class="menu-desktop" id="menu-desktop">
+        <!-- Menu renderizado via JS -->
+      </ul>
+
+      <button class="menu-toggle-btn" onclick="toggleMobileMenu()" aria-label="Abrir menu">☰</button>
+    </nav>
+  </header>
+
+  <!-- Mobile menu -->
+  <div class="mobile-menu" id="mobile-menu">
+    <ul id="mobile-menu-list">
+      <!-- Menu mobile renderizado via JS -->
+    </ul>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1>Workin'Store</h1>
+    <p>Melhores produtos, Kits OPL, pendrives, Memory Cards PS2, cabos de celular e carregadores, o melhor atendimento sempre e envios de Kits OPL para todo o Brasil.</p>
+  </section>
+
+  <!-- Catálogo -->
+  <section id="produtos" class="catalogo">
+    <h2>Nossos Produtos</h2>
+    <div class="search-wrap">
+      <span class="search-icon">🔎</span>
+      <input type="search" id="produto-search" class="search-input" placeholder="Buscar produtos por nome, descrição ou cidade..." autocomplete="off">
+      <button type="button" id="search-clear" class="search-clear hidden" aria-label="Limpar busca">×</button>
+    </div>
+    <p class="search-info hidden" id="search-info"></p>
+    <div class="grid" id="produtos-grid">
+      <!-- Cards renderizados via JS -->
+    </div>
+    <div class="pagination" id="pagination">
+      <!-- Paginação via JS -->
+    </div>
+  </section>
+
+
+  <!-- Footer -->
+  <footer>
+    <div class="banner-slider hidden" id="banner-slider">
+      <div class="banner-track" id="banner-track"></div>
+      <button class="banner-arrow prev" id="banner-prev" aria-label="Banner anterior">‹</button>
+      <button class="banner-arrow next" id="banner-next" aria-label="Próximo banner">›</button>
+      <div class="banner-dots" id="banner-dots"></div>
+    </div>
+    <div class="footer-content" id="footer-columns">
+      <!-- Colunas via JS -->
+    </div>
+    <div class="footer-bottom">
+      <p id="footer-copyright">© Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- Área restrita discreta -->
+  <div class="restricted-dot" id="restricted-dot" title="Área restrita"></div>
+
+  <!-- Modal Administrativo -->
+  <div class="modal-overlay" id="admin-modal">
+    <div class="modal admin-modal">
+      <div class="modal-header">
+        <h3>⚙️ Painel Administrativo</h3>
+        <button class="modal-close" aria-label="Fechar">×</button>
+      </div>
+      <div class="admin-modal-body">
+        <aside class="admin-nav">
+          <button class="tab-btn active" id="btn-produtos-tab">📦 Produtos</button>
+          <button class="tab-btn" id="btn-menu-tab">🧭 Menu</button>
+          <button class="tab-btn" id="btn-brand-tab">🎨 Marca</button>
+          <button class="tab-btn" id="btn-banners-tab">🖼️ Banners</button>
+          <button class="tab-btn" id="btn-footer-tab">📄 Rodapé</button>
+          <button id="logout-btn" class="btn-danger admin-logout" type="button">Sair</button>
+        </aside>
+        <div class="admin-content">
+    <!-- Produtos -->
+          <div id="produtos-tab" class="admin-section active">
+            <h3 id="produto-form-title">Adicionar produto</h3>
+            <form id="produto-form">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="produto-titulo">Título</label>
+                  <input type="text" id="produto-titulo" required>
+                </div>
+                <div class="form-group">
+                  <label for="produto-preco">Preço</label>
+                  <input type="number" id="produto-preco" step="0.01" required>
+                </div>
+                <div class="form-group full">
+                  <label for="produto-descricao">Descrição</label>
+                  <textarea id="produto-descricao" required></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="produto-cidades">Cidades / Local de venda</label>
+                  <input type="text" id="produto-cidades" placeholder="Ex: Nacional ou São Paulo, Rio de Janeiro">
+                </div>
+                <div class="form-group">
+                  <label for="produto-comprar">Link de compra</label>
+                  <input type="url" id="produto-comprar" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                  <label for="produto-imagem-file">Imagem do produto (arquivo)</label>
+                  <input type="file" id="produto-imagem-file" accept="image/*">
+                </div>
+                <div class="form-group">
+                  <label for="produto-imagem-url">ou imagem por link externo</label>
+                  <input type="url" id="produto-imagem-url" placeholder="https://...">
+                </div>
+                <div class="form-group full">
+                  <label>Gatilhos de marketing</label>
+                  <div id="triggers-options"></div>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn-save">Salvar produto</button>
+                <button type="button" id="produto-cancel" class="btn-cancel hidden">Cancelar</button>
+              </div>
+            </form>
+
+            <h3 style="margin-top:2rem;">Produtos cadastrados</h3>
+            <div class="admin-list" id="produtos-list">
+              <!-- Lista via JS -->
+            </div>
+          </div>
+
+          <!-- Menu -->
+          <div id="menu-tab" class="admin-section">
+            <div class="help-text">
+              <strong>Como criar um menu misto (links diretos + submenus):</strong><br>
+              • Para um <strong>link direto</strong> no topo, preencha <em>Nome</em> e <em>Link</em> e deixe <em>Item pai</em> como "Nenhum".<br>
+              • Para criar um <strong>submenu</strong>, primeiro cadastre o item de topo (pode deixar o link em branco). Depois, ao cadastrar um novo item, selecione esse item como <em>Item pai</em>. O sistema detecta automaticamente: itens com filhos viram botões de submenu; itens sem filhos viram links diretos.<br>
+              • Os subitens sempre aparecem como links dentro do menu expandido.<br>
+              • Para ordenar, arraste pelo ícone ⠿ ou digite o número da posição no campo ao lado (os números se atualizam automaticamente).
+            </div>
+
+            <h3 id="menu-form-title">Adicionar item de menu</h3>
+            <form id="menu-form">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="menu-name">Nome</label>
+                  <input type="text" id="menu-name" required>
+                </div>
+                <div class="form-group">
+                  <label for="menu-link">Link</label>
+                  <input type="text" id="menu-link" placeholder="#produtos ou https://...">
+                </div>
+                <div class="form-group">
+                  <label for="menu-parent">Item pai</label>
+                  <select id="menu-parent">
+                    <option value="">Nenhum (item de topo)</option>
+                    <!-- Preenchido via JS -->
+                  </select>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn-save">Salvar item</button>
+                <button type="button" id="menu-cancel" class="btn-cancel hidden">Cancelar</button>
+              </div>
+            </form>
+
+            <h3 style="margin-top:2rem;">Itens do menu</h3>
+            <div class="admin-list" id="menu-list">
+              <!-- Lista via JS -->
+            </div>
+          </div>
+
+          <!-- Marca -->
+          <div id="brand-tab" class="admin-section">
+            <h3>Logo e identidade</h3>
+            <form id="brand-form">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="brand-square-file">Logo quadrada (arquivo)</label>
+                  <input type="file" id="brand-square-file" accept="image/*">
+                </div>
+                <div class="form-group">
+                  <label for="brand-square-url">ou logo quadrada por link</label>
+                  <input type="url" id="brand-square-url" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                  <label for="brand-wide-file">Logo escrita larga (arquivo)</label>
+                  <input type="file" id="brand-wide-file" accept="image/*">
+                </div>
+                <div class="form-group">
+                  <label for="brand-wide-url">ou logo escrita por link</label>
+                  <input type="url" id="brand-wide-url" placeholder="https://...">
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn-save">Salvar marca</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Banners -->
+          <div id="banners-tab" class="admin-section">
+            <div class="help-text">
+              <strong>Banners do rodapé (900x220px recomendado):</strong><br>
+              • Envie uma imagem por arquivo (convertida em base64) ou informe a URL de uma imagem hospedada.<br>
+              • Arraste os itens da lista ou digite o número da posição para definir a ordem de exibição no slider.<br>
+              • Se não houver nenhum banner cadastrado, a área de banners não aparece no site.
+            </div>
+            <h3 id="banner-form-title">Adicionar banner</h3>
+            <form id="banner-form">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="banner-file">Imagem (arquivo 900x220)</label>
+                  <input type="file" id="banner-file" accept="image/*">
+                </div>
+                <div class="form-group">
+                  <label for="banner-url">ou imagem por link externo</label>
+                  <input type="url" id="banner-url" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                  <label for="banner-title">Título / descrição (alt)</label>
+                  <input type="text" id="banner-title" placeholder="Ex: Promoção Kits OPL">
+                </div>
+                <div class="form-group">
+                  <label for="banner-link">Link ao clicar (opcional)</label>
+                  <input type="url" id="banner-link" placeholder="https://...">
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn-save">Salvar banner</button>
+                <button type="button" id="banner-cancel" class="btn-cancel hidden">Cancelar</button>
+              </div>
+            </form>
+            <h3 style="margin-top:2rem;">Banners cadastrados</h3>
+            <div class="admin-list" id="banners-list"></div>
+          </div>
+
+          <!-- Rodapé -->
+          <div id="footer-tab" class="admin-section">
+            <h3>Rodapé</h3>
+            <form id="footer-form">
+              <div class="form-grid">
+                <div class="form-group full">
+                  <label for="footer-copyright">Texto de direitos reservados</label>
+                  <input type="text" id="footer-copyright-input">
+                </div>
+                <div class="form-group full">
+                  <label for="footer-columns-json">Colunas e links (JSON)</label>
+                  <textarea id="footer-columns-json" rows="10"></textarea>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn-save">Salvar rodapé</button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Login -->
+  <div class="modal-overlay" id="login-modal">
+    <div class="modal" style="max-width:420px;">
+      <div class="modal-header">
+        <h3>Área restrita</h3>
+        <button class="modal-close" aria-label="Fechar">×</button>
+      </div>
+      <div class="modal-body">
+        <div id="login-loader" class="login-loader">
+          <div class="spinner"></div>
+          <p class="login-message">Autenticando...</p>
+        </div>
+        <form id="login-form">
+          <div class="form-grid">
+            <div class="form-group full">
+              <label for="login-email">E-mail</label>
+              <input type="email" id="login-email" required autofocus>
+            </div>
+            <div class="form-group full">
+              <label for="login-password">Senha</label>
+              <input type="password" id="login-password" required>
+            </div>
+          </div>
+          <button type="submit" class="btn-primary" style="margin-top:1rem;">Entrar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Produto -->
+  <div class="modal-overlay" id="produto-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-title">Produto</h3>
+        <button class="modal-close" aria-label="Fechar">×</button>
+      </div>
+      <div class="modal-body">
+        <img id="modal-img" class="modal-img" src="" alt="Produto">
+        <p id="modal-desc" class="modal-desc"></p>
+        <div id="modal-triggers" class="modal-triggers"></div>
+        <div class="modal-info">
+          <div class="info-box">
+            <label>Disponibilidade</label>
+            <span id="modal-cities"></span>
+          </div>
+          <div class="info-box">
+            <label>Preço</label>
+            <span id="modal-price"></span>
+          </div>
+        </div>
+        <a id="modal-buy" href="#" class="btn-primary" target="_blank">Comprar agora</a>
+      </div>
+    </div>
+  </div>
+
+<a href="https://wa.me/5588988470190" target="_blank" class="whatsapp-float">
+    		<img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+		</a>
+  
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Firebase -->
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <script src="script.js"></script>
+</body>
+</html>
