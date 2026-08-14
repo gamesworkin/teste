@@ -36,27 +36,279 @@
 
   <!-- Hero -->
   <section class="hero">
-    <h1>Workin'Store</h1>
-    <p>Melhores produtos, Kits OPL, pendrives, Memory Cards PS2, cabos de celular e carregadores, o melhor atendimento sempre e envios de Kits OPL para todo o Brasil.</p>
-  </section>
+    <section class="blog-feed-section" data-blog-url="https://games.workinstore.org/feeds/posts/default?max-results=150">
+    <div class="rss-feed-container">
+        <h2>Games Workin'</h2>
+        <div class="rss-feed-list">
+            <p class="rss-loading">Carregando postagens...</p>
+        </div>
+        <div class="rss-pagination"></div>
+    </div>
+</section>
 
-  <!-- Catálogo -->
-  <section id="produtos" class="catalogo">
-    <h2>Nossos Produtos</h2>
-    <div class="search-wrap">
-      <span class="search-icon">🔎</span>
-      <input type="search" id="produto-search" class="search-input" placeholder="Buscar produtos por nome, descrição ou cidade..." autocomplete="off">
-      <button type="button" id="search-clear" class="search-clear hidden" aria-label="Limpar busca">×</button>
+<!-- Se quiser adicionar um segundo blog, basta colar outra section assim: -->
+<section class="blog-feed-section" data-blog-url="https://bombapatch.workinstore.org/feeds/posts/default?max-results=150">
+    <div class="rss-feed-container">
+        <h2>Bomba Patch Workin'</h2>
+        <div class="rss-feed-list">
+            <p class="rss-loading">Carregando postagens...</p>
+        </div>
+        <div class="rss-pagination"></div>
     </div>
-    <p class="search-info hidden" id="search-info"></p>
-    <div class="grid" id="produtos-grid">
-      <!-- Cards renderizados via JS -->
-    </div>
-    <div class="pagination" id="pagination">
-      <!-- Paginação via JS -->
-    </div>
-  </section>
+</section>
 
+<style>
+    /* Estilos gerais compartilhados para todas as seções */
+    .blog-feed-section {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    .blog-feed-section .rss-feed-container {
+        width: 100%;
+        max-width: 800px;
+        background-color: rgba(0, 0, 0, 0.65);
+        border-radius: 16px;
+        padding: 24px;
+        box-sizing: border-box;
+        backdrop-filter: blur(8px);
+    }
+
+    .blog-feed-section .rss-feed-container h2 {
+        color: #ffffff;
+        font-family: inherit;
+        margin-top: 0;
+        margin-bottom: 20px;
+        text-align: center;
+        font-size: 1.5rem;
+    }
+
+    .blog-feed-section .rss-feed-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        min-height: 250px;
+    }
+
+    .blog-feed-section .rss-item {
+        display: flex;
+        align-items: center;
+        background-color: #ffffff;
+        border-radius: 10px;
+        padding: 12px 16px;
+        text-decoration: none;
+        color: #333333;
+        width: 100%;
+        box-sizing: border-box;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .blog-feed-section .rss-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .blog-feed-section .rss-thumbnail {
+        width: 50px;
+        height: 50px;
+        min-width: 50px;
+        min-height: 50px;
+        object-fit: cover;
+        border-radius: 6px;
+        margin-right: 16px;
+        background-color: #e0e0e0;
+    }
+
+    .blog-feed-section .rss-title {
+        font-family: inherit;
+        font-size: 1rem;
+        font-weight: 600;
+        line-height: 1.4;
+        color: inherit;
+        margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .blog-feed-section .rss-loading,
+    .blog-feed-section .rss-error {
+        color: #ffffff;
+        text-align: center;
+        font-family: inherit;
+        padding: 20px;
+        margin: 0;
+    }
+
+    .blog-feed-section .rss-pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 6px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+    }
+
+    .blog-feed-section .rss-page-btn {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 0.9rem;
+        transition: background-color 0.2s;
+    }
+
+    .blog-feed-section .rss-page-btn:hover {
+        background-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .blog-feed-section .rss-page-btn.active {
+        background-color: #ffffff;
+        color: #333333;
+        font-weight: bold;
+    }
+
+    .blog-feed-section .rss-page-dots {
+        color: #ffffff;
+        padding: 0 4px;
+        font-family: inherit;
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const sections = document.querySelectorAll(".blog-feed-section");
+
+        sections.forEach((section, index) => {
+            const feedUrl = section.getAttribute("data-blog-url");
+            const listContainer = section.querySelector(".rss-feed-list");
+            const paginationContainer = section.querySelector(".rss-pagination");
+            
+            const postsPerPage = 5;
+            let currentPage = 1;
+            let allPosts = [];
+
+            // Nome de callback exclusivo para cada bloco evitar conflitos
+            const callbackName = `bloggerCallback_${index}`;
+
+            window[callbackName] = function(data) {
+                const entries = data.feed && data.feed.entry ? data.feed.entry : [];
+
+                allPosts = entries.map(entry => {
+                    const title = entry.title && entry.title.$t ? entry.title.$t : "Sem título";
+                    
+                    let link = "#";
+                    if (entry.link) {
+                        const altLink = entry.link.find(l => l.rel === "alternate");
+                        if (altLink) link = altLink.href;
+                    }
+
+                    let imageUrl = "";
+                    if (entry.media$thumbnail) {
+                        imageUrl = entry.media$thumbnail.url.replace(/\/s[0-9]+(\-c)?\//, "/s150-c/");
+                    } else if (entry.content && entry.content.$t) {
+                        const imgMatch = entry.content.$t.match(/<img[^>]+src="([^">]+)"/);
+                        if (imgMatch) imageUrl = imgMatch[1];
+                    }
+
+                    return { title, link, imageUrl };
+                });
+
+                if (allPosts.length > 0) {
+                    renderPage(currentPage);
+                    renderPagination();
+                } else {
+                    listContainer.innerHTML = `<p class="rss-error">Nenhum post encontrado.</p>`;
+                }
+            };
+
+            function renderPage(page) {
+                listContainer.innerHTML = "";
+                const start = (page - 1) * postsPerPage;
+                const end = start + postsPerPage;
+                const paginatedItems = allPosts.slice(start, end);
+
+                paginatedItems.forEach(item => {
+                    let img = item.imageUrl || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 24 24' fill='none' stroke='%23ccc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='18' height='18' rx='2' ry='2'></rect></svg>";
+
+                    const postLink = document.createElement("a");
+                    postLink.href = item.link;
+                    postLink.target = "_blank";
+                    postLink.rel = "noopener noreferrer";
+                    postLink.className = "rss-item";
+
+                    postLink.innerHTML = `
+                        <img src="${img}" alt="" class="rss-thumbnail" loading="lazy">
+                        <h3 class="rss-title">${item.title}</h3>
+                    `;
+                    listContainer.appendChild(postLink);
+                });
+            }
+
+            function renderPagination() {
+                paginationContainer.innerHTML = "";
+                const totalPages = Math.ceil(allPosts.length / postsPerPage);
+                if (totalPages <= 1) return;
+
+                let pagesToShow = [];
+                if (totalPages <= 5) {
+                    for (let i = 1; i <= totalPages; i++) pagesToShow.push(i);
+                } else {
+                    pagesToShow.push(1);
+                    let startWindow = Math.max(2, currentPage - 1);
+                    let endWindow = Math.min(totalPages - 1, currentPage + 1);
+
+                    if (currentPage <= 3) endWindow = 4;
+                    else if (currentPage >= totalPages - 2) startWindow = totalPages - 3;
+
+                    if (startWindow > 2) pagesToShow.push("...");
+                    for (let i = startWindow; i <= endWindow; i++) pagesToShow.push(i);
+                    if (endWindow < totalPages - 1) pagesToShow.push("...");
+                    pagesToShow.push(totalPages);
+                }
+
+                let filteredPages = pagesToShow.filter((item, idx, arr) => !(item === "..." && arr[idx - 1] === "..."));
+
+                filteredPages.forEach(page => {
+                    if (page === "...") {
+                        const dots = document.createElement("span");
+                        dots.className = "rss-page-dots";
+                        dots.innerText = "...";
+                        paginationContainer.appendChild(dots);
+                    } else {
+                        const button = document.createElement("button");
+                        button.className = `rss-page-btn ${page === currentPage ? "active" : ""}`;
+                        button.innerText = page;
+                        button.addEventListener("click", () => {
+                            currentPage = page;
+                            renderPage(currentPage);
+                            renderPagination();
+                            listContainer.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                        });
+                        paginationContainer.appendChild(button);
+                    }
+                });
+            }
+
+            // Dispara a requisição JSONP com o callback individual
+            const script = document.createElement("script");
+            script.src = `${feedUrl}&alt=json-in-script&callback=${callbackName}`;
+            script.onerror = function() {
+                listContainer.innerHTML = `<p class="rss-error">Erro ao carregar o feed.</p>`;
+            };
+            document.body.appendChild(script);
+        });
+    });
+</script>
+  </section>
 
   <!-- Footer -->
   <footer>
