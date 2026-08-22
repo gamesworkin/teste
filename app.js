@@ -210,8 +210,15 @@ onAuthStateChanged(auth, (user) => {
     $("#app").classList.remove("hidden");
     $("#userBadge").textContent = user.email;
     loader(true, "Carregando sistema...");
-    startListeners();
+    try { startListeners(); }
+    catch (err) {
+      console.error("Falha ao iniciar os listeners:", err);
+      loader(false);
+      toast("Erro ao carregar o sistema: " + (err && err.message ? err.message : err), true);
+    }
   } else {
+    stopListeners();
+    state.perfil = null;
     $("#app").classList.add("hidden");
     $("#loginScreen").classList.remove("hidden");
     $("#password").value = "";
@@ -225,10 +232,12 @@ setInterval(() => { $("#clock").textContent = new Date().toLocaleString("pt-BR")
 /* ------------------------------ navegação -------------------------------- */
 $$(".nav-item").forEach((btn) => {
   btn.onclick = () => {
+    const alvo = $("#view-" + btn.dataset.view);
+    if (!alvo) { console.warn("View inexistente:", btn.dataset.view); return; }
     $$(".nav-item").forEach((b) => b.classList.remove("active"));
     btn.classList.add("active");
     $$(".view").forEach((v) => v.classList.add("hidden"));
-    $("#view-" + btn.dataset.view).classList.remove("hidden");
+    alvo.classList.remove("hidden");
     closeSidebar();
   };
 });
@@ -239,19 +248,58 @@ $("#sidebarBackdrop").onclick = closeSidebar;
 
 /* ------------------------------ listeners RTDB --------------------------- */
 let loadedOnce = false;
+let loaderTimer = null;
+let unsubs = [];
+let usuariosWatching = false;
+
+function stopListeners() {
+  unsubs.forEach((u) => { try { u(); } catch (e) {} });
+  unsubs = [];
+  usuariosWatching = false;
+  clearTimeout(loaderTimer);
+}
+
+/* observa um caminho de forma tolerante a falhas: qualquer erro (permissão,
+   conexão ou exceção de renderização) nunca deixa a tela de carregamento presa */
+function watch(path, handler) {
+  const un = onValue(
+    ref(db, path),
+    (snap) => {
+      try { handler(snap.val()); }
+      catch (err) { console.error("Erro ao processar '" + path + "':", err); }
+      finally { done(); }
+    },
+    (err) => {
+      console.warn("Sem acesso a '" + path + "':", (err && err.code) || err);
+      done();
+    }
+  );
+  unsubs.push(un);
+}
+
 function startListeners() {
-  onValue(ref(db, "config/ui"), (s) => {
-    const v = s.val();
+  stopListeners();
+  loadedOnce = false;
+  /* rede de segurança: se nada responder em 10s, libera a tela mesmo assim */
+  loaderTimer = setTimeout(() => {
+    if (!loadedOnce) {
+      loadedOnce = true;
+      loader(false);
+      toast("Não foi possível carregar todos os dados. Verifique sua conexão.", true);
+    }
+  }, 10000);
+
+  watch("config/ui", (v) => {
     if (v) localStorage.setItem("uiCache", JSON.stringify(v));
     applyUI(v);
   });
-  onValue(ref(db, "produtos"), (s) => { state.produtos = s.val() || {}; renderProdutos(); fillProductSelects(); renderAll(); done(); });
-  onValue(ref(db, "lancamentos"), (s) => { state.lancamentos = s.val() || {}; renderAll(); done(); });
-  onValue(ref(db, "ajustes"), (s) => { state.ajustes = s.val() || {}; renderAll(); done(); });
-  onValue(ref(db, "contas"), (s) => { state.contas = s.val() || {}; fillContaSelects(); renderAll(); done(); });
-  onValue(ref(db, "financeiro"), (s) => { state.financeiro = s.val() || {}; renderAll(); done(); });
-  onValue(ref(db, "usuarios/" + state.user.uid), (s) => {
-    const v = s.val();
+  watch("produtos", (v) => { state.produtos = v || {}; renderProdutos(); fillProductSelects(); renderAll(); });
+  watch("lancamentos", (v) => { state.lancamentos = v || {}; renderAll(); });
+  watch("ajustes", (v) => { state.ajustes = v || {}; renderAll(); });
+  watch("contas", (v) => { state.contas = v || {}; fillContaSelects(); renderAll(); });
+  watch("financeiro", (v) => { state.financeiro = v || {}; renderAll(); });
+
+  watch("usuarios/" + state.user.uid, (v) => {
     const ehAdminEmail = (state.user.email || "").toLowerCase() === ADMIN_EMAIL;
     /* garante que admin@admin.com seja sempre administrador com acesso total */
     if (ehAdminEmail) {
@@ -259,24 +307,51 @@ function startListeners() {
         set(ref(db, "usuarios/" + state.user.uid), {
           nome: "Administrador", sobrenome: "", whatsapp: "", email: state.user.email,
           cargo: "admin", ativo: true, foto: "", acessos: acessosTotais(), criadoEm: Date.now(),
-        }).catch(() => {});
+        }).catch((e) => console.warn("Falha ao criar perfil do admin:", e));
       } else if (v.cargo !== "admin" || v.ativo === false) {
-        update(ref(db, "usuarios/" + state.user.uid), { cargo: "admin", ativo: true }).catch(() => {});
+        update(ref(db, "usuarios/" + state.user.uid), { cargo: "admin", ativo: true })
+          .catch((e) => console.warn("Falha ao corrigir perfil do admin:", e));
       }
     }
-    state.perfil = v || { email: state.user.email, cargo: ehAdminEmail ? "admin" : "funcionario", ativo: true, acessos: {} };
+
+    if (v) {
+      state.perfil = v;
+    } else {
+      /* funcionário autenticado sem cadastro liberado: entra com acesso mínimo,
+         nunca fica travado na tela de carregamento */
+      state.perfil = {
+        email: state.user.email,
+        cargo: ehAdminEmail ? "admin" : "funcionario",
+        ativo: true,
+        acessos: ehAdminEmail ? acessosTotais() : { dashboard: true },
+      };
+      if (!ehAdminEmail) toast("Seu cadastro ainda não foi liberado pelo administrador. Acesso limitado.", true);
+    }
+
     if (!ehAdminEmail && state.perfil.ativo === false) {
       toast("Seu acesso foi desativado pelo administrador.", true);
-      setTimeout(() => signOut(auth), 1200);
+      loader(false);
+      setTimeout(() => signOut(auth), 1500);
       return;
     }
-    preencherPerfil(); aplicarAcessos(); done();
+
+    preencherPerfil();
+    aplicarAcessos();
+    /* a lista completa de funcionários é visível apenas ao administrador */
+    if (isAdmin() && !usuariosWatching) {
+      usuariosWatching = true;
+      watch("usuarios", (all) => { state.usuarios = all || {}; renderUsuarios(); });
+    }
   });
-  /* a lista completa de funcionários é visível apenas ao administrador */
-  onValue(ref(db, "usuarios"), (s) => { state.usuarios = s.val() || {}; renderUsuarios(); done(); },
-    () => { state.usuarios = {}; done(); });
 }
-function done() { if (!loadedOnce) { loadedOnce = true; setTimeout(() => loader(false), 500); } }
+
+function done() {
+  if (!loadedOnce) {
+    loadedOnce = true;
+    clearTimeout(loaderTimer);
+    setTimeout(() => loader(false), 300);
+  }
+}
 
 /* ------------------------------ produtos --------------------------------- */
 $("#prodForm").addEventListener("submit", async (e) => {
