@@ -75,6 +75,12 @@ function loader(on, text = "Carregando sistema...") {
 /* ------------------------------ estado ----------------------------------- */
 const state = { produtos: {}, lancamentos: {}, ajustes: {}, contas: {}, financeiro: {}, ui: {}, usuarios: {}, perfil: null, user: null, editLanc: null, editProd: null, editMov: null, editConta: null, editUser: null, fotoTmp: "", usrFoto: "", carrinho: [] };
 const isAdmin = () => !!(state.user && (state.user.email === ADMIN_EMAIL || (state.perfil && state.perfil.cargo === "admin")));
+/* todos os acessos possiveis marcados (usado para o administrador) */
+function acessosTotais() {
+  const o = { escrita: true, usuarios: true };
+  (typeof VIEWS_DISPONIVEIS !== "undefined" ? VIEWS_DISPONIVEIS : []).forEach((v) => { o[v.id] = true; });
+  return o;
+}
 function guard() {
   if (typeof podeEscrever === "function" ? !podeEscrever() : !isAdmin()) {
     toast("Seu usuário não tem permissão para gravar dados.", true); return false;
@@ -245,10 +251,30 @@ function startListeners() {
   onValue(ref(db, "contas"), (s) => { state.contas = s.val() || {}; fillContaSelects(); renderAll(); done(); });
   onValue(ref(db, "financeiro"), (s) => { state.financeiro = s.val() || {}; renderAll(); done(); });
   onValue(ref(db, "usuarios/" + state.user.uid), (s) => {
-    state.perfil = s.val() || { email: state.user.email, cargo: state.user.email === ADMIN_EMAIL ? "admin" : "funcionario", acessos: {} };
+    const v = s.val();
+    const ehAdminEmail = (state.user.email || "").toLowerCase() === ADMIN_EMAIL;
+    /* garante que admin@admin.com seja sempre administrador com acesso total */
+    if (ehAdminEmail) {
+      if (!v) {
+        set(ref(db, "usuarios/" + state.user.uid), {
+          nome: "Administrador", sobrenome: "", whatsapp: "", email: state.user.email,
+          cargo: "admin", ativo: true, foto: "", acessos: acessosTotais(), criadoEm: Date.now(),
+        }).catch(() => {});
+      } else if (v.cargo !== "admin" || v.ativo === false) {
+        update(ref(db, "usuarios/" + state.user.uid), { cargo: "admin", ativo: true }).catch(() => {});
+      }
+    }
+    state.perfil = v || { email: state.user.email, cargo: ehAdminEmail ? "admin" : "funcionario", ativo: true, acessos: {} };
+    if (!ehAdminEmail && state.perfil.ativo === false) {
+      toast("Seu acesso foi desativado pelo administrador.", true);
+      setTimeout(() => signOut(auth), 1200);
+      return;
+    }
     preencherPerfil(); aplicarAcessos(); done();
   });
-  onValue(ref(db, "usuarios"), (s) => { state.usuarios = s.val() || {}; renderUsuarios(); done(); });
+  /* a lista completa de funcionários é visível apenas ao administrador */
+  onValue(ref(db, "usuarios"), (s) => { state.usuarios = s.val() || {}; renderUsuarios(); done(); },
+    () => { state.usuarios = {}; done(); });
 }
 function done() { if (!loadedOnce) { loadedOnce = true; setTimeout(() => loader(false), 500); } }
 
@@ -1820,8 +1846,9 @@ $("#perfilForm") && $("#perfilForm").addEventListener("submit", async (e) => {
     whatsapp: $("#perfWhats").value.trim(),
     foto: state.fotoTmp || "",
     email: state.user.email,
-    cargo: perfilAtual().cargo || (isAdmin() ? "admin" : "funcionario"),
   };
+  /* apenas o administrador pode alterar cargo/acessos */
+  if (isAdmin()) dados.cargo = perfilAtual().cargo || "admin";
   try {
     await update(ref(db, "usuarios/" + state.user.uid), dados);
     await updateProfile(state.user, {
@@ -1904,11 +1931,13 @@ function renderUsuarios() {
   $$("#tblUsuarios [data-tuser]").forEach((b) => (b.onclick = async () => {
     if (!isAdmin()) return toast("Somente o administrador.", true);
     const u = state.usuarios[b.dataset.tuser];
+    if (ehUsuarioAdminMaster(u)) return toast("O administrador principal não pode ser desativado.", true);
     await update(ref(db, "usuarios/" + b.dataset.tuser), { ativo: !(u.ativo !== false) });
     toast("Situação atualizada.");
   }));
   $$("#tblUsuarios [data-duser]").forEach((b) => (b.onclick = async () => {
     if (!isAdmin()) return toast("Somente o administrador.", true);
+    if (ehUsuarioAdminMaster(state.usuarios[b.dataset.duser])) return toast("O administrador principal não pode ser excluído.", true);
     if (!confirm("Remover o cadastro deste funcionário do sistema?\n(O login no Firebase Authentication deve ser removido pelo console.)")) return;
     await remove(ref(db, "usuarios/" + b.dataset.duser));
     toast("Funcionário removido.");
@@ -1925,9 +1954,11 @@ function limparFormUsuario() {
   renderAcessosCheck("#usrAcessos", { dashboard: true, lancamentos: true });
   pintaAvatar("#usrAvatar", "", "", "");
 }
+const ehUsuarioAdminMaster = (u) => !!(u && (u.email || "").toLowerCase() === ADMIN_EMAIL);
 function editarUsuario(uid) {
   const u = state.usuarios[uid];
   if (!u) return;
+  if (!isAdmin()) return toast("Somente o administrador pode editar funcionários.", true);
   state.editUser = uid;
   state.usrFoto = u.foto || "";
   $("#usrNome").value = u.nome || "";
@@ -1972,8 +2003,13 @@ $("#usuarioForm") && $("#usuarioForm").addEventListener("submit", async (e) => {
     acessos: lerAcessos("#usrAcessos"),
     ativo: true,
   };
+  /* cargo administrador => acesso total ao sistema */
+  if (dados.cargo === "admin") dados.acessos = acessosTotais();
   try {
     if (state.editUser) {
+      if (ehUsuarioAdminMaster(state.usuarios[state.editUser])) {
+        dados.cargo = "admin"; dados.ativo = true; dados.acessos = acessosTotais();
+      }
       const { email, ...resto } = dados;
       await update(ref(db, "usuarios/" + state.editUser), resto);
       toast("Funcionário atualizado.");
