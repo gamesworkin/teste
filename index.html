@@ -1,348 +1,524 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Workin'Store | Portal</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="description" content="Catálogo de produtos gamer com menu personalizável, admin exclusivo e integração Firebase.">
-  <link rel="icon" type="image/x-icon" href="fav.ico">
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Sistema Gerencial Sucata São José</title>
+<link rel="manifest" href="manifest.json">
+<meta name="description" content="Sistema gerencial para lançamentos diários de compra de materiais recicláveis, estoque e relatórios." />
+<link rel="icon" href="fav.ico" type="image/x-icon" />
+<link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-  <!-- Header / Navbar -->
-  <header id="main-header">
-    <nav>
-      <a href="#" class="brand-area">
-        <img id="logo-square" class="logo-square" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Logo quadrado">
-        <img id="logo-wide" class="logo-wide hidden" src="" alt="Logo escrito">
-      </a>
+<!-- ================= LOGIN ================= -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-box">
+    <div class="logo-slot" id="logoSlot">
+      <img id="logoImg" src="logo.png" alt="Logo da empresa" width="128" height="128"
+           onerror="this.style.display='none';document.getElementById('logoFallback').style.display='flex'" />
+      <div id="logoFallback" class="logo-fallback">LOGO<br><small>128x128</small></div>
+    </div>
 
-      <ul class="menu-desktop" id="menu-desktop">
-        <!-- Menu renderizado via JS -->
-      </ul>
+    <h1 id="loginTitle">Sucata São José</h1>
+    <p id="loginSubtitle" class="muted">Entre com suas credenciais</p>
 
-      <button class="menu-toggle-btn" onclick="toggleMobileMenu()" aria-label="Abrir menu">☰</button>
-    </nav>
+    <form id="loginForm" autocomplete="on">
+      <label for="email">E-mail</label>
+      <input type="email" id="email" placeholder="e-mail@provedor.com" required />
+      <label for="password">Senha</label>
+      <div class="pw-wrap">
+        <input type="password" id="password" placeholder="••••••••" required />
+        <button type="button" class="pw-toggle" id="pwToggle" aria-label="Mostrar senha">👁</button>
+      </div>
+      <button type="submit" class="btn primary block" id="loginBtn">Entrar</button>
+    </form>
+
+    <button class="link" id="forgotBtn">Esqueci minha senha</button>
+    <div id="loginMsg" class="msg"></div>
+  </div>
+
+  <button class="theme-fab" id="themeFabLogin" title="Alternar tema">🌗</button>
+</div>
+
+<!-- ============== RECUPERAÇÃO DE SENHA ============== -->
+<div class="modal-backdrop" id="resetModal">
+  <div class="modal">
+    <h2>Recuperar senha</h2>
+    <p class="muted">Informe o e-mail cadastrado. Enviaremos um link de redefinição.</p>
+    <form id="resetForm">
+      <input type="email" id="resetEmail" placeholder="seu@email.com" required />
+      <div class="row gap">
+        <button type="submit" class="btn primary">Enviar link</button>
+        <button type="button" class="btn ghost" data-close="resetModal">Cancelar</button>
+      </div>
+    </form>
+    <div id="resetMsg" class="msg"></div>
+  </div>
+</div>
+
+<!-- ============== LOADER ============== -->
+<div id="loader" class="loader-overlay">
+  <div class="spinner"></div>
+  <p id="loaderText">Carregando sistema...</p>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app" class="app hidden">
+  <header class="topbar">
+    <button class="icon-btn" id="menuBtn" aria-label="Menu">☰</button>
+    <div class="brand">
+      <img id="brandLogo" src="/logo.png" alt="" onerror="this.remove()" />
+      <span id="brandName">Sistema Reciclagem</span>
+    </div>
+    <div class="topbar-right">
+      <span id="clock" class="clock"></span>
+      <button class="icon-btn" id="themeBtn" title="Alternar tema">🌗</button>
+      <button class="icon-btn" id="logoutBtn" title="Sair">⎋</button>
+    </div>
   </header>
 
-  <!-- Mobile menu -->
-  <div class="mobile-menu" id="mobile-menu">
-    <ul id="mobile-menu-list">
-      <!-- Menu mobile renderizado via JS -->
-    </ul>
-  </div>
+  <div class="layout">
+    <nav class="sidebar" id="sidebar">
+      <button class="nav-item active" data-view="dashboard">📊 <span>Painel</span></button>
+      <button class="nav-item" data-view="lancamentos">🧾 <span>Lançamentos</span></button>
+      <button class="nav-item" data-view="estoque">📦 <span>Estoque</span></button>
+      <button class="nav-item" data-view="produtos">🏷️ <span>Produtos</span></button>
+      <button class="nav-item" data-view="relatorios">📈 <span>Relatórios</span></button>
+      <button class="nav-item" data-view="dados">💾 <span>Import/Export</span></button>
+      <button class="nav-item" data-view="admin">⚙️ <span>Interface</span></button>
+      <button class="nav-item" data-view="caixa">🛒 <span>Compra/Venda</span></button>
+      <button class="nav-item" data-view="financeiro">💰 <span>Financeiro</span></button>
+      <div class="sidebar-foot"><span id="userBadge"></span></div>
+    </nav>
+    <div class="backdrop" id="sidebarBackdrop"></div>
 
-  <!-- Hero -->
-  <section class="hero">
-    <h1>Workin'Store</h1>
-    <p>Melhores produtos, Kits OPL, pendrives, Memory Cards PS2, cabos de celular e carregadores, o melhor atendimento sempre e envios de Kits OPL para todo o Brasil.</p>
-  </section>
+    <main class="content">
 
-  <!-- Catálogo -->
-  <section id="produtos" class="catalogo">
-    <h2>Nossos Produtos</h2>
-    <div class="search-wrap">
-      <span class="search-icon">🔎</span>
-      <input type="search" id="produto-search" class="search-input" placeholder="Buscar produtos por nome, descrição ou cidade..." autocomplete="off">
-      <button type="button" id="search-clear" class="search-clear hidden" aria-label="Limpar busca">×</button>
-    </div>
-    <p class="search-info hidden" id="search-info"></p>
-    <div class="grid" id="produtos-grid">
-      <!-- Cards renderizados via JS -->
-    </div>
-    <div class="pagination" id="pagination">
-      <!-- Paginação via JS -->
-    </div>
-  </section>
-
-
-  <!-- Footer -->
-  <footer>
-    <div class="banner-slider hidden" id="banner-slider">
-      <div class="banner-track" id="banner-track"></div>
-      <button class="banner-arrow prev" id="banner-prev" aria-label="Banner anterior">‹</button>
-      <button class="banner-arrow next" id="banner-next" aria-label="Próximo banner">›</button>
-      <div class="banner-dots" id="banner-dots"></div>
-    </div>
-    <div class="footer-content" id="footer-columns">
-      <!-- Colunas via JS -->
-    </div>
-    <div class="footer-bottom">
-      <p id="footer-copyright">© Todos os direitos reservados.</p>
-    </div>
-  </footer>
-
-  <!-- Área restrita discreta -->
-  <div class="restricted-dot" id="restricted-dot" title="Área restrita"></div>
-
-  <!-- Modal Administrativo -->
-  <div class="modal-overlay" id="admin-modal">
-    <div class="modal admin-modal">
-      <div class="modal-header">
-        <h3>⚙️ Painel Administrativo</h3>
-        <button class="modal-close" aria-label="Fechar">×</button>
-      </div>
-      <div class="admin-modal-body">
-        <aside class="admin-nav">
-          <button class="tab-btn active" id="btn-produtos-tab">📦 Produtos</button>
-          <button class="tab-btn" id="btn-menu-tab">🧭 Menu</button>
-          <button class="tab-btn" id="btn-brand-tab">🎨 Marca</button>
-          <button class="tab-btn" id="btn-banners-tab">🖼️ Banners</button>
-          <button class="tab-btn" id="btn-footer-tab">📄 Rodapé</button>
-          <button id="logout-btn" class="btn-danger admin-logout" type="button">Sair</button>
-        </aside>
-        <div class="admin-content">
-    <!-- Produtos -->
-          <div id="produtos-tab" class="admin-section active">
-            <h3 id="produto-form-title">Adicionar produto</h3>
-            <form id="produto-form">
-              <div class="form-grid">
-                <div class="form-group">
-                  <label for="produto-titulo">Título</label>
-                  <input type="text" id="produto-titulo" required>
-                </div>
-                <div class="form-group">
-                  <label for="produto-preco">Preço</label>
-                  <input type="number" id="produto-preco" step="0.01" required>
-                </div>
-                <div class="form-group full">
-                  <label for="produto-descricao">Descrição</label>
-                  <textarea id="produto-descricao" required></textarea>
-                </div>
-                <div class="form-group">
-                  <label for="produto-cidades">Cidades / Local de venda</label>
-                  <input type="text" id="produto-cidades" placeholder="Ex: Nacional ou São Paulo, Rio de Janeiro">
-                </div>
-                <div class="form-group">
-                  <label for="produto-comprar">Link de compra</label>
-                  <input type="url" id="produto-comprar" placeholder="https://...">
-                </div>
-                <div class="form-group">
-                  <label for="produto-imagem-file">Imagem do produto (arquivo)</label>
-                  <input type="file" id="produto-imagem-file" accept="image/*">
-                </div>
-                <div class="form-group">
-                  <label for="produto-imagem-url">ou imagem por link externo</label>
-                  <input type="url" id="produto-imagem-url" placeholder="https://...">
-                </div>
-                <div class="form-group full">
-                  <label>Gatilhos de marketing</label>
-                  <div id="triggers-options"></div>
-                </div>
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="btn-save">Salvar produto</button>
-                <button type="button" id="produto-cancel" class="btn-cancel hidden">Cancelar</button>
-              </div>
-            </form>
-
-            <h3 style="margin-top:2rem;">Produtos cadastrados</h3>
-            <div class="admin-list" id="produtos-list">
-              <!-- Lista via JS -->
-            </div>
-          </div>
-
-          <!-- Menu -->
-          <div id="menu-tab" class="admin-section">
-            <div class="help-text">
-              <strong>Como criar um menu misto (links diretos + submenus):</strong><br>
-              • Para um <strong>link direto</strong> no topo, preencha <em>Nome</em> e <em>Link</em> e deixe <em>Item pai</em> como "Nenhum".<br>
-              • Para criar um <strong>submenu</strong>, primeiro cadastre o item de topo (pode deixar o link em branco). Depois, ao cadastrar um novo item, selecione esse item como <em>Item pai</em>. O sistema detecta automaticamente: itens com filhos viram botões de submenu; itens sem filhos viram links diretos.<br>
-              • Os subitens sempre aparecem como links dentro do menu expandido.<br>
-              • Para ordenar, arraste pelo ícone ⠿ ou digite o número da posição no campo ao lado (os números se atualizam automaticamente).
-            </div>
-
-            <h3 id="menu-form-title">Adicionar item de menu</h3>
-            <form id="menu-form">
-              <div class="form-grid">
-                <div class="form-group">
-                  <label for="menu-name">Nome</label>
-                  <input type="text" id="menu-name" required>
-                </div>
-                <div class="form-group">
-                  <label for="menu-link">Link</label>
-                  <input type="text" id="menu-link" placeholder="#produtos ou https://...">
-                </div>
-                <div class="form-group">
-                  <label for="menu-parent">Item pai</label>
-                  <select id="menu-parent">
-                    <option value="">Nenhum (item de topo)</option>
-                    <!-- Preenchido via JS -->
-                  </select>
-                </div>
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="btn-save">Salvar item</button>
-                <button type="button" id="menu-cancel" class="btn-cancel hidden">Cancelar</button>
-              </div>
-            </form>
-
-            <h3 style="margin-top:2rem;">Itens do menu</h3>
-            <div class="admin-list" id="menu-list">
-              <!-- Lista via JS -->
-            </div>
-          </div>
-
-          <!-- Marca -->
-          <div id="brand-tab" class="admin-section">
-            <h3>Logo e identidade</h3>
-            <form id="brand-form">
-              <div class="form-grid">
-                <div class="form-group">
-                  <label for="brand-square-file">Logo quadrada (arquivo)</label>
-                  <input type="file" id="brand-square-file" accept="image/*">
-                </div>
-                <div class="form-group">
-                  <label for="brand-square-url">ou logo quadrada por link</label>
-                  <input type="url" id="brand-square-url" placeholder="https://...">
-                </div>
-                <div class="form-group">
-                  <label for="brand-wide-file">Logo escrita larga (arquivo)</label>
-                  <input type="file" id="brand-wide-file" accept="image/*">
-                </div>
-                <div class="form-group">
-                  <label for="brand-wide-url">ou logo escrita por link</label>
-                  <input type="url" id="brand-wide-url" placeholder="https://...">
-                </div>
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="btn-save">Salvar marca</button>
-              </div>
-            </form>
-          </div>
-
-          <!-- Banners -->
-          <div id="banners-tab" class="admin-section">
-            <div class="help-text">
-              <strong>Banners do rodapé (900x220px recomendado):</strong><br>
-              • Envie uma imagem por arquivo (convertida em base64) ou informe a URL de uma imagem hospedada.<br>
-              • Arraste os itens da lista ou digite o número da posição para definir a ordem de exibição no slider.<br>
-              • Se não houver nenhum banner cadastrado, a área de banners não aparece no site.
-            </div>
-            <h3 id="banner-form-title">Adicionar banner</h3>
-            <form id="banner-form">
-              <div class="form-grid">
-                <div class="form-group">
-                  <label for="banner-file">Imagem (arquivo 900x220)</label>
-                  <input type="file" id="banner-file" accept="image/*">
-                </div>
-                <div class="form-group">
-                  <label for="banner-url">ou imagem por link externo</label>
-                  <input type="url" id="banner-url" placeholder="https://...">
-                </div>
-                <div class="form-group">
-                  <label for="banner-title">Título / descrição (alt)</label>
-                  <input type="text" id="banner-title" placeholder="Ex: Promoção Kits OPL">
-                </div>
-                <div class="form-group">
-                  <label for="banner-link">Link ao clicar (opcional)</label>
-                  <input type="url" id="banner-link" placeholder="https://...">
-                </div>
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="btn-save">Salvar banner</button>
-                <button type="button" id="banner-cancel" class="btn-cancel hidden">Cancelar</button>
-              </div>
-            </form>
-            <h3 style="margin-top:2rem;">Banners cadastrados</h3>
-            <div class="admin-list" id="banners-list"></div>
-          </div>
-
-          <!-- Rodapé -->
-          <div id="footer-tab" class="admin-section">
-            <h3>Rodapé</h3>
-            <form id="footer-form">
-              <div class="form-grid">
-                <div class="form-group full">
-                  <label for="footer-copyright">Texto de direitos reservados</label>
-                  <input type="text" id="footer-copyright-input">
-                </div>
-                <div class="form-group full">
-                  <label for="footer-columns-json">Colunas e links (JSON)</label>
-                  <textarea id="footer-columns-json" rows="10"></textarea>
-                </div>
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="btn-save">Salvar rodapé</button>
-              </div>
-            </form>
-          </div>
-
+      <!-- DASHBOARD -->
+      <section class="view" id="view-dashboard">
+        <h2 class="view-title">Painel</h2>
+        <div class="cards">
+          <div class="card"><span class="card-label">Compras hoje (qtd.)</span><strong id="kpiKgHoje">0</strong></div>
+          <div class="card"><span class="card-label">Gasto hoje</span><strong id="kpiGastoHoje">R$ 0,00</strong></div>
+          <div class="card"><span class="card-label">Vendas hoje</span><strong id="kpiVendaHoje">R$ 0,00</strong></div>
+          <div class="card"><span class="card-label">Lucro previsto hoje</span><strong id="kpiLucroHoje">R$ 0,00</strong></div>
+          <div class="card"><span class="card-label">Estoque total</span><strong id="kpiEstoque">0</strong></div>
+          <div class="card"><span class="card-label">Valor de estoque</span><strong id="kpiEstoqueValor">R$ 0,00</strong></div>
+          <div class="card"><span class="card-label">Saldo em caixa</span><strong id="kpiCaixa">R$ 0,00</strong></div>
         </div>
-      </div>
-    </div>
-  </div>
+        <h3 class="sub">Últimos lançamentos</h3>
+        <div class="table-wrap"><table id="tblUltimos"><thead><tr>
+          <th>Data/Hora</th><th>Produto</th><th>Tipo</th><th>Qtd.</th><th>Preço unit.</th><th>Total</th>
+        </tr></thead><tbody></tbody></table></div>
+      </section>
 
-  <!-- Modal Login -->
-  <div class="modal-overlay" id="login-modal">
-    <div class="modal" style="max-width:420px;">
-      <div class="modal-header">
-        <h3>Área restrita</h3>
-        <button class="modal-close" aria-label="Fechar">×</button>
-      </div>
-      <div class="modal-body">
-        <div id="login-loader" class="login-loader">
-          <div class="spinner"></div>
-          <p class="login-message">Autenticando...</p>
-        </div>
-        <form id="login-form">
-          <div class="form-grid">
-            <div class="form-group full">
-              <label for="login-email">E-mail</label>
-              <input type="email" id="login-email" required autofocus>
-            </div>
-            <div class="form-group full">
-              <label for="login-password">Senha</label>
-              <input type="password" id="login-password" required>
-            </div>
+      <!-- LANÇAMENTOS -->
+      <section class="view hidden" id="view-lancamentos">
+        <h2 class="view-title">Lançamentos diários</h2>
+        <form id="lancForm" class="panel grid-form">
+          <div><label>Data e hora</label><input type="datetime-local" id="lancData" required /></div>
+          <div><label>Tipo</label><select id="lancTipo">
+            <option value="compra">Compra</option><option value="venda">Venda</option>
+          </select></div>
+          <div><label>Produto</label><select id="lancProduto" required></select></div>
+          <div><label id="lancPesoLbl">Peso (kg)</label><input type="number" step="0.001" min="0" id="lancPeso" required /></div>
+          <div><label id="lancPrecoLbl">Preço por kg (R$)</label><input type="number" step="0.01" min="0" id="lancPreco" required /></div>
+          <div><label>Fornecedor / Cliente</label><input type="text" id="lancPessoa" placeholder="Opcional" /></div>
+          <div><label>Conta / caixa</label><select id="lancConta"></select></div>
+          <div class="full"><label>Observação</label><input type="text" id="lancObs" placeholder="Opcional" /></div>
+
+          <div class="full row gap">
+            <span class="total-preview" id="lancTotal">Total: R$ 0,00</span>
+            <button type="submit" class="btn primary">Salvar lançamento</button>
+            <button type="button" class="btn ghost" id="lancCancel">Cancelar edição</button>
           </div>
-          <button type="submit" class="btn-primary" style="margin-top:1rem;">Entrar</button>
         </form>
-      </div>
-    </div>
-  </div>
 
-  <!-- Modal Produto -->
-  <div class="modal-overlay" id="produto-modal">
-    <div class="modal">
-      <div class="modal-header">
-        <h3 id="modal-title">Produto</h3>
-        <button class="modal-close" aria-label="Fechar">×</button>
-      </div>
-      <div class="modal-body">
-        <img id="modal-img" class="modal-img" src="" alt="Produto">
-        <p id="modal-desc" class="modal-desc"></p>
-        <div id="modal-triggers" class="modal-triggers"></div>
-        <div class="modal-info">
-          <div class="info-box">
-            <label>Disponibilidade</label>
-            <span id="modal-cities"></span>
+        <div class="panel filters">
+          <div><label>De</label><input type="date" id="fDe" /></div>
+          <div><label>Até</label><input type="date" id="fAte" /></div>
+          <div><label>Produto</label><select id="fProduto"><option value="">Todos</option></select></div>
+          <div><label>Tipo</label><select id="fTipo"><option value="">Todos</option><option value="compra">Compra</option><option value="venda">Venda</option></select></div>
+          <div><label>Buscar</label><input type="text" id="fBusca" placeholder="Fornecedor, obs..." /></div>
+          <div class="row gap end"><button class="btn" id="fLimpar">Limpar</button></div>
+        </div>
+
+        <div class="table-wrap"><table id="tblLanc"><thead><tr>
+          <th>Data/Hora</th><th>Tipo</th><th>Produto</th><th>Qtd.</th><th>Preço unit.</th><th>Total</th><th>Pessoa</th><th>Conta</th><th>Obs</th><th></th>
+        </tr></thead><tbody></tbody><tfoot></tfoot></table></div>
+
+        <div class="pager" id="tblLancPager"></div>
+
+      </section>
+
+      <!-- ESTOQUE -->
+      <section class="view hidden" id="view-estoque">
+        <h2 class="view-title">Estoque</h2>
+        <form id="ajusteForm" class="panel grid-form">
+          <div><label>Produto</label><select id="ajProduto" required></select></div>
+          <div><label>Tipo de ajuste</label><select id="ajTipo">
+            <option value="inicial">Saldo inicial (pré-sistema)</option>
+            <option value="entrada">Entrada manual</option>
+            <option value="saida">Saída / perda</option>
+          </select></div>
+          <div><label id="ajPesoLbl">Peso (kg)</label><input type="number" step="0.001" min="0" id="ajPeso" required /></div>
+          <div><label id="ajCustoLbl">Custo médio por kg (R$)</label><input type="number" step="0.01" min="0" id="ajCusto" /></div>
+          <div class="full"><label>Observação</label><input type="text" id="ajObs" /></div>
+          <div class="full"><button class="btn primary" type="submit">Registrar ajuste</button></div>
+        </form>
+
+        <div class="table-wrap"><table id="tblEstoque"><thead><tr>
+          <th>Produto</th><th>Unid.</th><th>Inicial</th><th>Comprado</th><th>Vendido</th><th>Ajustes</th><th>Saldo</th><th>Valor estimado</th>
+        </tr></thead><tbody></tbody></table></div>
+
+        <h3 class="sub">Histórico de ajustes</h3>
+        <div class="table-wrap"><table id="tblAjustes"><thead><tr>
+          <th>Data</th><th>Produto</th><th>Tipo</th><th>Qtd.</th><th>Custo unit.</th><th>Obs</th><th></th>
+        </tr></thead><tbody></tbody></table></div>
+      </section>
+
+      <!-- PRODUTOS -->
+      <section class="view hidden" id="view-produtos">
+        <h2 class="view-title">Produtos</h2>
+        <form id="prodForm" class="panel grid-form">
+          <div><label>Nome</label><input type="text" id="prodNome" required /></div>
+          <div><label>Categoria</label><input type="text" id="prodCat" placeholder="Metais, Papel..." /></div>
+          <div><label>Unidade de medida</label><select id="prodUnid">
+            <option value="kg">Peso (kg)</option><option value="un">Unidade (un)</option>
+          </select></div>
+          <div><label>Preço compra padrão</label><input type="number" step="0.01" min="0" id="prodCompra" /></div>
+          <div><label>Preço venda padrão</label><input type="number" step="0.01" min="0" id="prodVenda" /></div>
+          <div class="full row gap">
+            <button class="btn primary" type="submit">Salvar produto</button>
+            <button class="btn ghost" type="button" id="prodCancel">Cancelar edição</button>
           </div>
-          <div class="info-box">
-            <label>Preço</label>
-            <span id="modal-price"></span>
+        </form>
+        <div class="table-wrap"><table id="tblProdutos"><thead><tr>
+          <th>Nome</th><th>Categoria</th><th>Unid.</th><th>Compra</th><th>Venda</th><th>Margem</th><th></th>
+        </tr></thead><tbody></tbody></table></div>
+      </section>
+
+      <!-- RELATÓRIOS -->
+      <section class="view hidden" id="view-relatorios">
+        <h2 class="view-title">Relatórios</h2>
+        <div class="panel filters">
+          <div><label>Período</label><select id="relTipo">
+            <option value="diario">Diário</option><option value="mensal">Mensal</option><option value="anual">Anual</option>
+          </select></div>
+          <div><label>Referência</label><input type="date" id="relRef" /></div>
+          <div><label>Movimentação</label><select id="relMovTipo">
+            <option value="">Compras e vendas</option>
+            <option value="compra">Somente compras</option>
+            <option value="venda">Somente vendas</option>
+          </select></div>
+          <div class="full">
+            <label>Produtos (marque um ou vários — vazio = todos)</label>
+            <div class="chk-list" id="relProdutos"></div>
+            <div class="row gap" style="margin-top:.5rem">
+              <button type="button" class="btn mini" id="relProdTodos">Marcar todos</button>
+              <button type="button" class="btn mini" id="relProdNenhum">Desmarcar todos</button>
+            </div>
+          </div>
+          <div class="row gap end">
+            <button class="btn" id="relGerar">Gerar</button>
+                        <button class="btn ghost" id="relCsv">Exportar CSV</button>
+            <button class="btn ghost" id="relPrint">Imprimir / PDF</button>
           </div>
         </div>
-        <a id="modal-buy" href="#" class="btn-primary" target="_blank">Comprar agora</a>
-      </div>
-    </div>
+        <div class="cards">
+          <div class="card"><span class="card-label">Comprado (qtd.)</span><strong id="relKgC">0</strong></div>
+          <div class="card"><span class="card-label">Vendido (qtd.)</span><strong id="relKgV">0</strong></div>
+          <div class="card"><span class="card-label">Total compras</span><strong id="relTotC">R$ 0,00</strong></div>
+          <div class="card"><span class="card-label">Total vendas</span><strong id="relTotV">R$ 0,00</strong></div>
+          <div class="card"><span class="card-label">Resultado</span><strong id="relResult">R$ 0,00</strong></div>
+        </div>
+        <div class="table-wrap"><table id="tblRel"><thead><tr>
+          <th>Produto</th><th>Qtd. compra</th><th>R$ compra</th><th>Qtd. venda</th><th>R$ venda</th><th>Resultado</th>
+        </tr></thead><tbody></tbody></table></div>
+      </section>
+
+      <!-- IMPORT / EXPORT -->
+      <section class="view hidden" id="view-dados">
+        <h2 class="view-title">Importação e exportação</h2>
+        <div class="panel">
+          <h3 class="sub">Exportar</h3>
+          <div class="filters">
+            <div><label>Escopo</label><select id="expEscopo">
+              <option value="full">Banco completo</option>
+              <option value="periodo">Somente período</option>
+            </select></div>
+            <div><label>De</label><input type="date" id="expDe" /></div>
+            <div><label>Até</label><input type="date" id="expAte" /></div>
+            <div class="row gap end">
+              <button class="btn primary" id="expJson">Exportar JSON</button>
+              <button class="btn ghost" id="expCsv">Exportar CSV</button>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <h3 class="sub">Importar</h3>
+          <p class="muted">Aceita arquivos JSON gerados por este sistema.</p>
+          <div class="filters">
+            <div><label>Arquivo</label><input type="file" id="impFile" accept="application/json" /></div>
+            <div><label>Modo</label><select id="impModo">
+              <option value="merge">Mesclar (mantém existentes)</option>
+              <option value="replace">Substituir tudo</option>
+            </select></div>
+            <div class="row gap end"><button class="btn primary" id="impBtn">Importar</button></div>
+          </div>
+          <div id="impMsg" class="msg"></div>
+        </div>
+      </section>
+
+      <!-- ADMIN INTERFACE -->
+      <section class="view hidden" id="view-admin">
+        <h2 class="view-title">Editor de interface</h2>
+        <form id="uiForm" class="panel grid-form">
+          <div><label>Nome do sistema</label><input type="text" id="uiBrand" /></div>
+          <div><label>Título da tela de login</label><input type="text" id="uiLoginTitle" /></div>
+          <div><label>Subtítulo do login</label><input type="text" id="uiLoginSubtitle" /></div>
+          <div><label>URL da logo (128x128)</label><input type="text" id="uiLogo" placeholder="/logo.png" /></div>
+          <div><label>Cor primária</label><input type="color" id="uiPrimary" /></div>
+          <div><label>Cor de destaque</label><input type="color" id="uiAccent" /></div>
+          <div><label>Raio das bordas (px)</label><input type="number" id="uiRadius" min="0" max="28" /></div>
+          <div><label>Tamanho da fonte base (px)</label><input type="number" id="uiFont" min="12" max="20" /></div>
+          <div><label>Tema padrão</label><select id="uiTheme"><option value="dark">Escuro</option><option value="light">Claro</option></select></div>
+          <div><label>Moeda</label><input type="text" id="uiMoeda" placeholder="R$" /></div>
+          <div class="full"><label>Rótulos do menu (separados por vírgula)</label>
+            <input type="text" id="uiMenu" placeholder="Painel,Lançamentos,Estoque,Produtos,Relatórios,Import/Export,Interface,Compra/Venda,Financeiro" /></div>
+          <div class="full row gap">
+            <button class="btn primary" type="submit">Salvar interface</button>
+            <button class="btn ghost" type="button" id="uiReset">Restaurar padrão</button>
+          </div>
+        </form>
+      </section>
+
+
+      <!-- COMPRA / VENDA (CARRINHO) -->
+      <section class="view hidden" id="view-caixa">
+        <h2 class="view-title">Compra / Venda</h2>
+
+        <div class="tabs" id="cxTabs">
+          <button class="tab active" data-tab="real">Operação real</button>
+          <button class="tab" data-tab="sim">Simulador</button>
+        </div>
+
+        <div id="cxPaneReal">
+
+        <form id="cxCabForm" class="panel grid-form" onsubmit="return false">
+          <div><label>Data e hora</label><input type="datetime-local" id="cxData" /></div>
+          <div><label>Tipo da operação</label><select id="cxTipo">
+            <option value="compra">Compra</option><option value="venda">Venda</option>
+          </select></div>
+          <div><label>Fornecedor / Cliente</label><input type="text" id="cxPessoa" placeholder="Opcional" /></div>
+          <div><label>Conta / caixa</label><select id="cxConta"></select></div>
+          <div class="full"><label>Observação da operação</label><input type="text" id="cxObs" placeholder="Opcional" /></div>
+        </form>
+
+        <h3 class="sub">Adicionar item</h3>
+        <form id="cxItemForm" class="panel grid-form">
+          <div><label>Produto</label><select id="cxProduto" required></select></div>
+          <div><label id="cxQtdLbl">Peso (kg)</label><input type="number" step="0.001" min="0" id="cxQtd" required /></div>
+          <div><label id="cxPrecoLbl">Preço por kg (R$)</label><input type="number" step="0.01" min="0" id="cxPreco" required /></div>
+          <div><label>Observação do item</label><input type="text" id="cxItemObs" placeholder="Opcional" /></div>
+          <div class="full row gap">
+            <span class="total-preview" id="cxSubtotal">Subtotal: R$ 0,00</span>
+            <button type="submit" class="btn primary">Adicionar ao carrinho</button>
+          </div>
+        </form>
+
+        <h3 class="sub">Itens da operação</h3>
+        <div class="table-wrap"><table id="tblCaixa"><thead><tr>
+          <th>Produto</th><th>Qtd.</th><th>Preço unit.</th><th>Subtotal</th><th>Obs</th><th></th>
+        </tr></thead><tbody></tbody><tfoot></tfoot></table></div>
+
+        <div class="panel">
+          <div class="cards">
+            <div class="card"><span class="card-label">Total em peso</span><strong id="cxTotKg">0</strong></div>
+            <div class="card"><span class="card-label">Total em unidades</span><strong id="cxTotUn">0</strong></div>
+            <div class="card"><span class="card-label">Itens</span><strong id="cxTotItens">0</strong></div>
+            <div class="card"><span class="card-label">Valor total</span><strong id="cxTotValor">R$ 0,00</strong></div>
+          </div>
+          <div class="row gap" style="margin-top:1rem">
+            <button class="btn primary" id="cxFinalizar">Finalizar e lançar</button>
+            <button class="btn ghost" id="cxLimpar">Limpar carrinho</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3 class="sub">Documentos</h3>
+          <div class="filters">
+            <div class="row gap"><button class="btn" id="cxRecibo">Imprimir recibo</button></div>
+            <div><label>Data do relatório</label><input type="date" id="cxRelData" /></div>
+            <div><label>Movimentações</label><select id="cxRelTipo">
+              <option value="">Compras e vendas</option>
+              <option value="compra">Somente compras</option>
+              <option value="venda">Somente vendas</option>
+            </select></div>
+            <div class="row gap end"><button class="btn" id="cxRelDia">Imprimir relatório do dia</button></div>
+          </div>
+          <p class="muted">O recibo usa os itens do carrinho atual ou a última operação finalizada.</p>
+        </div>
+        </div>
+
+        <div id="cxPaneSim" class="hidden">
+          <h3 class="sub">Simulador — nada é gravado no banco de dados</h3>
+          <form id="simItemForm" class="panel grid-form">
+            <div><label>Tipo da simulação</label><select id="simTipo">
+              <option value="compra">Compra</option><option value="venda">Venda</option>
+            </select></div>
+            <div><label>Produto</label><select id="simProduto" required></select></div>
+            <div><label id="simQtdLbl">Peso (kg)</label><input type="number" step="0.001" min="0" id="simQtd" required /></div>
+            <div><label id="simPrecoLbl">Preço por kg (R$)</label><input type="number" step="0.01" min="0" id="simPreco" required /></div>
+            <div><label id="simRefLbl">Preço de referência (R$)</label><input type="number" step="0.01" min="0" id="simRef" /></div>
+            <div class="full row gap">
+              <span class="total-preview" id="simSubtotal">Subtotal: R$ 0,00</span>
+              <button type="submit" class="btn primary">Adicionar à simulação</button>
+            </div>
+          </form>
+
+          <div class="table-wrap"><table id="tblSim"><thead><tr>
+            <th>Tipo</th><th>Produto</th><th>Qtd.</th><th>Preço unit.</th><th>Subtotal</th><th>Referência</th><th>Resultado estimado</th><th></th>
+          </tr></thead><tbody></tbody><tfoot></tfoot></table></div>
+
+          <div class="panel">
+            <div class="cards">
+              <div class="card"><span class="card-label">Compras simuladas</span><strong id="simTotC">R$ 0,00</strong></div>
+              <div class="card"><span class="card-label">Vendas simuladas</span><strong id="simTotV">R$ 0,00</strong></div>
+              <div class="card"><span class="card-label">Resultado estimado</span><strong id="simResult">R$ 0,00</strong></div>
+              <div class="card"><span class="card-label">Margem estimada</span><strong id="simMargem">0%</strong></div>
+            </div>
+            <div class="row gap" style="margin-top:1rem">
+              <button class="btn primary" id="simPrint">Imprimir simulação</button>
+              <button class="btn ghost" id="simLimpar">Limpar simulação</button>
+            </div>
+            <p class="muted" style="margin-top:.6rem">A simulação existe apenas nesta sessão do navegador; nenhum lançamento é criado.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- FINANCEIRO -->
+      <section class="view hidden" id="view-financeiro">
+        <h2 class="view-title">Financeiro</h2>
+
+        <div class="cards">
+          <div class="card"><span class="card-label">Saldo em caixa (todas as contas)</span><strong id="finSaldoTotal">R$ 0,00</strong></div>
+          <div class="card"><span class="card-label">Entradas do mês</span><strong id="finEntradasMes">R$ 0,00</strong></div>
+          <div class="card"><span class="card-label">Saídas do mês</span><strong id="finSaidasMes">R$ 0,00</strong></div>
+          <div class="card"><span class="card-label">Resultado do mês</span><strong id="finResultadoMes">R$ 0,00</strong></div>
+          <div class="card"><span class="card-label">Contas a pagar (pendente)</span><strong id="finAPagar">R$ 0,00</strong></div>
+          <div class="card"><span class="card-label">A receber (pendente)</span><strong id="finAReceber">R$ 0,00</strong></div>
+        </div>
+
+        <h3 class="sub">Contas / Caixas</h3>
+        <form id="finContaForm" class="panel grid-form">
+          <div><label>Nome da conta</label><input type="text" id="finContaNome" placeholder="Caixa da loja, Banco X..." required /></div>
+          <div><label>Tipo</label><select id="finContaTipo">
+            <option value="caixa">Caixa (dinheiro)</option>
+            <option value="banco">Conta bancária</option>
+            <option value="digital">Carteira digital / PIX</option>
+          </select></div>
+          <div><label>Saldo inicial (R$)</label><input type="number" step="0.01" id="finContaSaldo" /></div>
+          <div><label>Conta padrão das operações</label><select id="finContaPadrao">
+            <option value="nao">Não</option><option value="sim">Sim</option>
+          </select></div>
+          <div class="full row gap">
+            <button class="btn primary" type="submit">Salvar conta</button>
+            <button class="btn ghost" type="button" id="finContaCancel">Cancelar edição</button>
+          </div>
+        </form>
+        <div class="table-wrap"><table id="tblFinContas"><thead><tr>
+          <th>Conta</th><th>Tipo</th><th>Padrão</th><th>Saldo inicial</th><th>Movimentado</th><th>Saldo atual</th><th></th>
+        </tr></thead><tbody></tbody><tfoot></tfoot></table></div>
+
+        <h3 class="sub">Novo movimento financeiro</h3>
+        <form id="finMovForm" class="panel grid-form">
+          <div><label>Data</label><input type="datetime-local" id="finData" required /></div>
+          <div><label>Natureza</label><select id="finTipo">
+            <option value="entrada">Entrada (recebimento)</option>
+            <option value="saida">Saída (pagamento)</option>
+          </select></div>
+          <div><label>Categoria</label><select id="finCategoria"></select></div>
+          <div><label>Conta</label><select id="finConta" required></select></div>
+          <div><label>Valor (R$)</label><input type="number" step="0.01" min="0" id="finValor" required /></div>
+          <div><label>Forma de pagamento</label><select id="finForma">
+            <option value="dinheiro">Dinheiro</option><option value="pix">PIX</option>
+            <option value="transferencia">Transferência</option><option value="cartao">Cartão</option>
+            <option value="boleto">Boleto</option><option value="cheque">Cheque</option>
+          </select></div>
+          <div><label>Vencimento</label><input type="date" id="finVenc" /></div>
+          <div><label>Situação</label><select id="finStatus">
+            <option value="pago">Pago / recebido</option>
+            <option value="pendente">Pendente</option>
+          </select></div>
+          <div><label>Pessoa / empresa</label><input type="text" id="finPessoa" placeholder="Opcional" /></div>
+          <div class="full"><label>Descrição</label><input type="text" id="finDesc" placeholder="Ex.: Conta de luz — julho" /></div>
+          <div class="full row gap">
+            <button class="btn primary" type="submit">Salvar movimento</button>
+            <button class="btn ghost" type="button" id="finMovCancel">Cancelar edição</button>
+          </div>
+        </form>
+
+        <h3 class="sub">Transferência entre contas</h3>
+        <form id="finTransfForm" class="panel grid-form">
+          <div><label>De</label><select id="finTrDe" required></select></div>
+          <div><label>Para</label><select id="finTrPara" required></select></div>
+          <div><label>Valor (R$)</label><input type="number" step="0.01" min="0" id="finTrValor" required /></div>
+          <div><label>Observação</label><input type="text" id="finTrObs" placeholder="Opcional" /></div>
+          <div class="full"><button class="btn primary" type="submit">Transferir</button></div>
+        </form>
+
+        <h3 class="sub">Contas a pagar / receber pendentes</h3>
+        <div class="table-wrap"><table id="tblFinPend"><thead><tr>
+          <th>Vencimento</th><th>Descrição</th><th>Categoria</th><th>Natureza</th><th>Valor</th><th>Conta</th><th></th>
+        </tr></thead><tbody></tbody></table></div>
+
+        <h3 class="sub">Extrato / movimentações</h3>
+        <div class="panel filters">
+          <div><label>De</label><input type="date" id="finFDe" /></div>
+          <div><label>Até</label><input type="date" id="finFAte" /></div>
+          <div><label>Conta</label><select id="finFConta"><option value="">Todas</option></select></div>
+          <div><label>Natureza</label><select id="finFTipo"><option value="">Todas</option><option value="entrada">Entradas</option><option value="saida">Saídas</option></select></div>
+          <div><label>Origem</label><select id="finFOrigem">
+            <option value="">Todas</option><option value="manual">Manuais</option><option value="operacional">Compras/Vendas</option>
+          </select></div>
+          <div><label>Buscar</label><input type="text" id="finFBusca" placeholder="Descrição, pessoa, categoria..." /></div>
+          <div class="row gap end">
+            <button class="btn" id="finFLimpar">Limpar</button>
+            <button class="btn ghost" id="finCsv">Exportar CSV</button>
+          </div>
+        </div>
+        <div class="table-wrap"><table id="tblFinMov"><thead><tr>
+          <th>Data</th><th>Descrição</th><th>Categoria</th><th>Origem</th><th>Conta</th><th>Entrada</th><th>Saída</th><th>Saldo</th><th></th>
+        </tr></thead><tbody></tbody><tfoot></tfoot></table></div>
+
+        <h3 class="sub">Resumo por categoria (período filtrado)</h3>
+        <div class="table-wrap"><table id="tblFinCat"><thead><tr>
+          <th>Categoria</th><th>Entradas</th><th>Saídas</th><th>Saldo</th>
+        </tr></thead><tbody></tbody></table></div>
+
+        <h3 class="sub">Relatórios financeiros em PDF</h3>
+        <div class="panel filters">
+          <div><label>Período</label><select id="relTipo">
+            <option value="dia">Diário</option><option value="mes" selected>Mensal</option><option value="ano">Anual</option>
+          </select></div>
+          <div id="relCampoDia" class="hidden"><label>Dia</label><input type="date" id="relDia" /></div>
+          <div id="relCampoMes"><label>Mês</label><input type="month" id="relMes" /></div>
+          <div id="relCampoAno" class="hidden"><label>Ano</label><input type="number" id="relAno" min="2000" max="2100" step="1" /></div>
+          <div><label>Conta</label><select id="relConta"><option value="">Todas</option></select></div>
+          <div class="row gap end"><button class="btn primary" id="relPdf">Imprimir / salvar PDF</button></div>
+        </div>
+      </section>
+
+
+
+    </main>
   </div>
+</div>
 
-<a href="https://wa.me/5588988470190" target="_blank" class="whatsapp-float">
-    		<img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
-		</a>
-  
-  <!-- Toast -->
-  <div id="toast" class="toast"></div>
+<div id="toast" class="toast"></div>
 
-  <!-- Firebase -->
-
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
-  <script src="script.js"></script>
+<script type="module" src="app.js"></script>
 </body>
 </html>
