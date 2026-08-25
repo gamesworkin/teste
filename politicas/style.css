@@ -1752,3 +1752,95 @@ body.light-theme .admin-list-item.dragging {
   width: auto;
   margin: 0;
 }
+
+/* Estilos ajustados para evitar sobreposição do header fixo */
+.privacy-section {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 30px 1.5rem 40px; /* padding-top de 100px resolve o problema do header fixo */
+}
+
+.privacy-container {
+  background: var(--surface);
+  border: 1px solid rgba(102, 252, 241, 0.15);
+  border-radius: var(--radius);
+  padding: 2.5rem;
+}
+
+.privacy-header {
+  margin-bottom: 2rem;
+}
+
+.privacy-title {
+  font-size: 2rem;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.privacy-updated {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.privacy-updated span {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.privacy-intro {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.privacy-divider {
+  border: 0;
+  height: 1px;
+  background: rgba(102, 252, 241, 0.15);
+  margin: 2rem 0;
+}
+
+.privacy-block {
+  margin-bottom: 2rem;
+}
+
+.privacy-block h2 {
+  font-size: 1.25rem;
+  color: var(--primary);
+  margin-bottom: 1rem;
+}
+
+.privacy-block p {
+  color: var(--text);
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.privacy-list {
+  list-style-type: none;
+  padding-left: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.privacy-list li {
+  position: relative;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.privacy-list li::before {
+  content: '▸';
+  position: absolute;
+  left: -1.2rem;
+  color: var(--primary);
+}
+
+@media (max-width: 640px) {
+  .privacy-container {
+    padding: 1.5rem;
+  }
+}
