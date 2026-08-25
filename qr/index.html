@@ -7,9 +7,16 @@
   <link rel="manifest" href="manifest.json">
   <meta name="description" content="Catálogo de produtos gamer com menu personalizável, admin exclusivo e integração Firebase.">
   <link rel="icon" type="image/x-icon" href="fav.ico">
+  <meta property="og:title" content="Workin'Store | Portal">
+  <meta property="og:description" content="Kits OPL, pendrives, Memory Cards PS2, cabos e carregadores com envio para todo o Brasil.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+  <!-- Botão de tema (canto superior esquerdo) -->
+  <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Alternar tema" title="Alternar tema claro/escuro">🌙</button>
 
   <!-- Header / Navbar -->
   <header id="main-header">
@@ -35,339 +42,338 @@
   </div>
 
   <!-- Hero -->
-  <section class="hero">
-  <div class="qrw catalogo">
+  <link rel="stylesheet" href="style.css">
+  <!-- Estilos internos específicos do gerador QR (não existem no style.css) -->
   <style>
-  .qrw{--qrw-primary:var(--primary,#66fcf1);--qrw-dim:var(--primary-dim,#45a29e);--qrw-surface:var(--surface,rgba(31,40,51,.85));--qrw-bg:var(--bg,#0b0c10);--qrw-text:var(--text,#f5f5f5);--qrw-muted:var(--text-muted,#a0a0a0);--qrw-radius:var(--radius,12px);--qrw-transition:var(--transition,.3s cubic-bezier(.25,.8,.25,1));--qrw-line:rgba(102,252,241,.15)}
-  .qrw *,.qrw *::before,.qrw *::after{box-sizing:border-box}
-  .qrw .qrw-head{font-size:1.8rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:.6rem;color:var(--qrw-text)}
-  .qrw .qrw-head::before{content:'';width:6px;height:28px;background:var(--qrw-primary);border-radius:3px}
-  .qrw .qrw-sub{color:var(--qrw-muted);margin:-1rem 0 1.75rem;font-size:.95rem}
-  .qrw .qrw-panel{background:var(--qrw-surface);border:1px solid rgba(102,252,241,.1);border-radius:var(--qrw-radius);padding:1.75rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem;transition:var(--qrw-transition)}
-  .qrw .qrw-panel:hover{border-color:rgba(102,252,241,.25)}
-  .qrw .qrw-stack{display:flex;flex-direction:column;gap:1rem}
-  .qrw .qrw-field{display:flex;flex-direction:column;gap:.4rem}
-  .qrw .qrw-field > label,.qrw .qrw-legend{font-size:.85rem;color:var(--qrw-muted);font-weight:600}
-  .qrw .qrw-legend{text-transform:uppercase;letter-spacing:.05em;font-size:.7rem}
-  .qrw input,.qrw select{width:100%;background:var(--qrw-bg);border:1px solid var(--qrw-line);border-radius:8px;padding:.75rem 1rem;color:var(--qrw-text);font-family:inherit;font-size:.95rem;transition:var(--qrw-transition)}
-  .qrw input:focus,.qrw select:focus{outline:none;border-color:var(--qrw-primary);box-shadow:0 0 0 3px rgba(102,252,241,.1)}
-  .qrw input[type=color]{padding:4px;height:46px;cursor:pointer}
-  .qrw #qrw-dynamicInputs{display:flex;flex-direction:column;gap:.6rem}
-  .qrw .qrw-row{display:grid;grid-template-columns:70px 1fr;gap:.6rem}
-  .qrw .qrw-upload{display:block;padding:.75rem;background:rgba(102,252,241,.06);text-align:center;cursor:pointer;border-radius:8px;border:1px dashed rgba(102,252,241,.3);color:var(--qrw-muted);font-size:.9rem;font-weight:600;transition:var(--qrw-transition)}
-  .qrw .qrw-upload:hover{background:rgba(102,252,241,.12);color:var(--qrw-primary);border-color:var(--qrw-primary)}
-  .qrw .qrw-preview-side{display:flex;flex-direction:column;gap:.85rem}
-  .qrw .qrw-canvas{background:#fff;padding:15px;border-radius:var(--qrw-radius);display:flex;justify-content:center;align-items:center;box-shadow:var(--shadow,0 0 20px rgba(102,252,241,.15));width:100%;max-width:280px;aspect-ratio:1;margin:0 auto;overflow:hidden}
-  .qrw .qrw-canvas svg{width:100%;height:100%;object-fit:contain}
-  .qrw .qrw-btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;width:100%;font-family:inherit;font-weight:700;padding:.85rem 1.5rem;border:none;border-radius:var(--qrw-radius);cursor:pointer;text-transform:uppercase;letter-spacing:.03em;transition:var(--qrw-transition)}
-  .qrw .qrw-btn-primary{background:linear-gradient(90deg,var(--qrw-primary),var(--qrw-dim));color:var(--qrw-bg)}
-  .qrw .qrw-btn-primary:hover{box-shadow:0 0 25px rgba(102,252,241,.35);transform:translateY(-2px)}
-  .qrw .qrw-btn-ghost{background:transparent;color:var(--qrw-primary);border:1px solid rgba(102,252,241,.35)}
-  .qrw .qrw-btn-ghost:hover{background:rgba(102,252,241,.1);transform:translateY(-2px)}
-  .qrw .qrw-msg{min-height:1.2rem;font-size:.8rem;color:var(--danger,#ff4d4d);text-align:center}
-  @media (max-width:768px){.qrw .qrw-panel{grid-template-columns:1fr;padding:1.25rem;gap:1.5rem}}
+    .qrw{--qrw-primary:var(--primary,#66fcf1);--qrw-dim:var(--primary-dim,#45a29e);--qrw-surface:var(--surface,rgba(31,40,51,.85));--qrw-bg:var(--bg,#0b0c10);--qrw-text:var(--text,#f5f5f5);--qrw-muted:var(--text-muted,#a0a0a0);--qrw-radius:var(--radius,12px);--qrw-transition:var(--transition,.3s cubic-bezier(.25,.8,.25,1));--qrw-line:rgba(102,252,241,.15)}
+    .qrw *,.qrw *::before,.qrw *::after{box-sizing:border-box}
+    .qrw .qrw-head{font-size:1.8rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:.6rem;color:var(--qrw-text)}
+    .qrw .qrw-head::before{content:'';width:6px;height:28px;background:var(--qrw-primary);border-radius:3px}
+    .qrw .qrw-sub{color:var(--qrw-muted);margin:-1rem 0 1.75rem;font-size:.95rem}
+    .qrw .qrw-panel{background:var(--qrw-surface);border:1px solid rgba(102,252,241,.1);border-radius:var(--qrw-radius);padding:1.75rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem;transition:var(--qrw-transition)}
+    .qrw .qrw-panel:hover{border-color:rgba(102,252,241,.25)}
+    .qrw .qrw-stack{display:flex;flex-direction:column;gap:1rem}
+    .qrw .qrw-field{display:flex;flex-direction:column;gap:.4rem}
+    .qrw .qrw-field > label,.qrw .qrw-legend{font-size:.85rem;color:var(--qrw-muted);font-weight:600}
+    .qrw .qrw-legend{text-transform:uppercase;letter-spacing:.05em;font-size:.7rem}
+    .qrw input,.qrw select{width:100%;background:var(--qrw-bg);border:1px solid var(--qrw-line);border-radius:8px;padding:.75rem 1rem;color:var(--qrw-text);font-family:inherit;font-size:.95rem;transition:var(--qrw-transition)}
+    .qrw input:focus,.qrw select:focus{outline:none;border-color:var(--qrw-primary);box-shadow:0 0 0 3px rgba(102,252,241,.1)}
+    .qrw input[type=color]{padding:4px;height:46px;cursor:pointer}
+    .qrw #qrw-dynamicInputs{display:flex;flex-direction:column;gap:.6rem}
+    .qrw .qrw-row{display:grid;grid-template-columns:70px 1fr;gap:.6rem}
+    .qrw .qrw-upload{display:block;padding:.75rem;background:rgba(102,252,241,.06);text-align:center;cursor:pointer;border-radius:8px;border:1px dashed rgba(102,252,241,.3);color:var(--qrw-muted);font-size:.9rem;font-weight:600;transition:var(--qrw-transition)}
+    .qrw .qrw-upload:hover{background:rgba(102,252,241,.12);color:var(--qrw-primary);border-color:var(--qrw-primary)}
+    .qrw .qrw-preview-side{display:flex;flex-direction:column;gap:.85rem}
+    .qrw .qrw-canvas{background:#fff;padding:15px;border-radius:var(--qrw-radius);display:flex;justify-content:center;align-items:center;box-shadow:var(--shadow,0 0 20px rgba(102,252,241,.15));width:100%;max-width:280px;aspect-ratio:1;margin:0 auto;overflow:hidden}
+    .qrw .qrw-canvas svg{width:100%;height:100%;object-fit:contain}
+    .qrw .qrw-btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;width:100%;font-family:inherit;font-weight:700;padding:.85rem 1.5rem;border:none;border-radius:var(--qrw-radius);cursor:pointer;text-transform:uppercase;letter-spacing:.03em;transition:var(--qrw-transition)}
+    .qrw .qrw-btn-primary{background:linear-gradient(90deg,var(--qrw-primary),var(--qrw-dim));color:var(--qrw-bg)}
+    .qrw .qrw-btn-primary:hover{box-shadow:0 0 25px rgba(102,252,241,.35);transform:translateY(-2px)}
+    .qrw .qrw-btn-ghost{background:transparent;color:var(--qrw-primary);border:1px solid rgba(102,252,241,.35)}
+    .qrw .qrw-btn-ghost:hover{background:rgba(102,252,241,.1);transform:translateY(-2px)}
+    .qrw .qrw-msg{min-height:1.2rem;font-size:.8rem;color:var(--danger,#ff4d4d);text-align:center}
+    @media (max-width:768px){.qrw .qrw-panel{grid-template-columns:1fr;padding:1.25rem;gap:1.5rem}}
   </style>
 
-  <div class="qrw-panel">
-    <div class="qrw-stack">
-      <div class="qrw-field">
-        <label for="qrw-type">Tipo de conteúdo</label>
-        <select id="qrw-type">
-          <option value="url">Link / Texto Livre (QR Code)</option>
-          <option value="wifi">Rede Wi-Fi (QR Code)</option>
-          <option value="vcard">Cartão de Visita - vCard (QR Code)</option>
-          <option value="whatsapp">WhatsApp Direct (QR Code)</option>
-          <option value="location">Localização / GPS (QR Code)</option>
-          <option value="pix">Chave Pix (QR Code)</option>
-          <option value="barcode">Código de Barras (Universal/Texto)</option>
-        </select>
-      </div>
+<!-- Hero -->
+<section class="hero">
+  <div class="qrw catalogo">
 
-      <div id="qrw-dynamicInputs"></div>
-
-      <div class="qrw-field" id="qrw-exportSettings">
-        <span class="qrw-legend">Configurações de exportação</span>
-        <div class="qrw-row" id="qrw-dotColorRow">
-          <input type="color" id="qrw-dotColor" value="#66fcf1" aria-label="Cor do QR Code">
-          <select id="qrw-dotStyle">
-            <option value="extra-rounded">Extra Redondo</option>
-            <option value="rounded">Arredondado</option>
-            <option value="dots">Pontos</option>
-            <option value="square">Quadrado</option>
+    <div class="qrw-panel">
+      <div class="qrw-stack">
+        <div class="qrw-field">
+          <label for="qrw-type">Tipo de conteúdo</label>
+          <select id="qrw-type">
+            <option value="url">Link / Texto Livre (QR Code)</option>
+            <option value="wifi">Rede Wi-Fi (QR Code)</option>
+            <option value="vcard">Cartão de Visita - vCard (QR Code)</option>
+            <option value="whatsapp">WhatsApp Direct (QR Code)</option>
+            <option value="location">Localização / GPS (QR Code)</option>
+            <option value="pix">Chave Pix (QR Code)</option>
+            <option value="barcode">Código de Barras (Universal/Texto)</option>
           </select>
         </div>
-        <select id="qrw-resSelect">
-          <option value="500">500x500 (Padrão)</option>
-          <option value="800">800x800 (HD)</option>
-          <option value="1000">1000x1000 (Alta Qualidade)</option>
-          <option value="2000">2000x2000 (Ultra Qualidade)</option>
-        </select>
-        <label for="qrw-logoUpload" class="qrw-upload" id="qrw-logoUploadLabel">Adicionar logo</label>
-        <input type="file" id="qrw-logoUpload" accept="image/*" style="display:none">
+
+        <div id="qrw-dynamicInputs"></div>
+
+        <div class="qrw-field" id="qrw-exportSettings">
+          <span class="qrw-legend">Configurações de exportação</span>
+          <div class="qrw-row" id="qrw-dotColorRow">
+            <input type="color" id="qrw-dotColor" value="#66fcf1" aria-label="Cor do QR Code">
+            <select id="qrw-dotStyle">
+              <option value="extra-rounded">Extra Redondo</option>
+              <option value="rounded">Arredondado</option>
+              <option value="dots">Pontos</option>
+              <option value="square">Quadrado</option>
+            </select>
+          </div>
+          <select id="qrw-resSelect">
+            <option value="500">500x500 (Padrão)</option>
+            <option value="800">800x800 (HD)</option>
+            <option value="1000">1000x1000 (Alta Qualidade)</option>
+            <option value="2000">2000x2000 (Ultra Qualidade)</option>
+          </select>
+          <label for="qrw-logoUpload" class="qrw-upload" id="qrw-logoUploadLabel">Adicionar logo</label>
+          <input type="file" id="qrw-logoUpload" accept="image/*" style="display:none">
+        </div>
+      </div>
+
+      <div class="qrw-preview-side">
+        <div id="qrw-preview" class="qrw-canvas"></div>
+        <button type="button" id="qrw-generateBtn" class="qrw-btn qrw-btn-primary">Gerar visualização</button>
+        <button type="button" id="qrw-downloadBtn" class="qrw-btn qrw-btn-ghost">Baixar código</button>
+        <p id="qrw-errorMessage" class="qrw-msg"></p>
       </div>
     </div>
 
-    <div class="qrw-preview-side">
-      <div id="qrw-preview" class="qrw-canvas"></div>
-      <button type="button" id="qrw-generateBtn" class="qrw-btn qrw-btn-primary">Gerar visualização</button>
-      <button type="button" id="qrw-downloadBtn" class="qrw-btn qrw-btn-ghost">Baixar código</button>
-      <p id="qrw-errorMessage" class="qrw-msg"></p>
-    </div>
-  </div>
+    <script>
+    (function () {
+      var root = document.currentScript.closest('.qrw');
+      var $ = function (id) { return root.querySelector('#' + id); };
+      var msg = $('qrw-errorMessage');
 
-  <script>
-  (function () {
-    var root = document.currentScript.closest('.qrw');
-    var $ = function (id) { return root.querySelector('#' + id); };
-    var msg = $('qrw-errorMessage');
+      function loadLibs(cb) {
+        let loadedCount = 0;
+        function checkDone() {
+          loadedCount++;
+          if (loadedCount === 2) cb();
+        }
 
-    function loadLibs(cb) {
-      let loadedCount = 0;
-      function checkDone() {
-        loadedCount++;
-        if (loadedCount === 2) cb();
-      }
+        if (window.QRCodeStyling) checkDone();
+        else {
+          var s1 = document.createElement('script');
+          s1.dataset.qrwLib = '1';
+          s1.src = 'https://unpkg.com/qr-code-styling@1.6.0/lib/qr-code-styling.js';
+          s1.onload = checkDone;
+          s1.onerror = function () { msg.textContent = 'Falha ao carregar a biblioteca de QR Code.'; };
+          document.head.appendChild(s1);
+        }
 
-      if (window.QRCodeStyling) checkDone();
-      else {
-        var s1 = document.createElement('script');
-        s1.dataset.qrwLib = '1';
-        s1.src = 'https://unpkg.com/qr-code-styling@1.6.0/lib/qr-code-styling.js';
-        s1.onload = checkDone;
-        s1.onerror = function () { msg.textContent = 'Falha ao carregar a biblioteca de QR Code.'; };
-        document.head.appendChild(s1);
-      }
-
-      if (window.JsBarcode) checkDone();
-      else {
-        var s2 = document.createElement('script');
-        s2.dataset.barcodeLib = '1';
-        s2.src = 'https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js';
-        s2.onload = checkDone;
-        s2.onerror = function () { msg.textContent = 'Falha ao carregar a biblioteca de Código de Barras.'; };
-        document.head.appendChild(s2);
-      }
-    }
-
-    var templates = {
-      url: '<input type="text" id="qrw-mainVal" placeholder="URL ou texto">',
-      wifi: '<input type="text" id="qrw-wifiSSID" placeholder="Nome da rede (SSID)"><input type="password" id="qrw-wifiPass" placeholder="Senha">',
-      vcard: '<input type="text" id="qrw-vName" placeholder="Nome"><input type="tel" id="qrw-vTel" placeholder="Telefone">',
-      whatsapp: '<input type="text" id="qrw-waNum" placeholder="Número (com DDD)">',
-      location: '<input type="text" id="qrw-lat" placeholder="Latitude"><input type="text" id="qrw-lng" placeholder="Longitude">',
-      pix: '<input type="text" id="qrw-pixKey" placeholder="Chave Pix (CPF, CNPJ, e-mail, telefone ou aleatoria)"><input type="text" id="qrw-pixName" placeholder="Nome do recebedor"><input type="text" id="qrw-pixCity" placeholder="Cidade do recebedor"><input type="text" id="qrw-pixAmount" placeholder="Valor (opcional, ex: 49.90)"><input type="text" id="qrw-pixTxid" placeholder="Identificador (opcional, ex: PEDIDO123)">',
-      barcode: '<input type="text" id="qrw-barVal" placeholder="Informação do código de barras (ex: 789102030405)"><div class="qrw-field"><label for="qrw-barFormat">Formato do Código</label><select id="qrw-barFormat"><option value="CODE128">CODE 128 (Recomendado - Suporta texto e números)</option><option value="EAN13">EAN-13 (13 dígitos)</option><option value="UPC">UPC (12 dígitos)</option><option value="CODE39">CODE 39</option></select></div>'
-    };
-
-    function pixClean(str, max) {
-      var out = (str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\x20-\x7E]/g, '').trim();
-      return max ? out.substring(0, max) : out;
-    }
-
-    function pixField(id, value) {
-      return id + String(value.length).padStart(2, '0') + value;
-    }
-
-    function pixCrc16(payload) {
-      var crc = 0xFFFF;
-      for (var i = 0; i < payload.length; i++) {
-        crc ^= payload.charCodeAt(i) << 8;
-        for (var b = 0; b < 8; b++) {
-          crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
-          crc &= 0xFFFF;
+        if (window.JsBarcode) checkDone();
+        else {
+          var s2 = document.createElement('script');
+          s2.dataset.barcodeLib = '1';
+          s2.src = 'https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js';
+          s2.onload = checkDone;
+          s2.onerror = function () { msg.textContent = 'Falha ao carregar a biblioteca de Código de Barras.'; };
+          document.head.appendChild(s2);
         }
       }
-      return crc.toString(16).toUpperCase().padStart(4, '0');
-    }
 
-    function buildPix() {
-      var key = pixClean(val('qrw-pixKey'), 77);
-      var name = pixClean(val('qrw-pixName'), 25).toUpperCase();
-      var city = pixClean(val('qrw-pixCity'), 15).toUpperCase();
-      if (!key || !name || !city) return '';
-      var amount = pixClean(val('qrw-pixAmount')).replace(/\s/g, '').replace(',', '.');
-      var txid = pixClean(val('qrw-pixTxid'), 25).replace(/[^A-Za-z0-9]/g, '') || '***';
-      var payload = pixField('00', '01')
-        + pixField('26', pixField('00', 'br.gov.bcb.pix') + pixField('01', key))
-        + pixField('52', '0000')
-        + pixField('53', '986');
-      if (amount && !isNaN(parseFloat(amount))) payload += pixField('54', parseFloat(amount).toFixed(2));
-      payload += pixField('58', 'BR')
-        + pixField('59', name)
-        + pixField('60', city)
-        + pixField('62', pixField('05', txid))
-        + '6304';
-      return payload + pixCrc16(payload);
-    }
-
-    var typeEl = $('qrw-type');
-    var dyn = $('qrw-dynamicInputs');
-    
-    function updateFields() { 
-      dyn.innerHTML = templates[typeEl.value] || ''; 
-      var isBarcode = (typeEl.value === 'barcode');
-      $('qrw-dotColorRow').style.display = isBarcode ? 'none' : 'grid';
-      $('qrw-logoUploadLabel').style.display = isBarcode ? 'none' : 'block';
-    }
-
-    typeEl.addEventListener('change', updateFields);
-    updateFields();
-
-    function val(id) { var el = $(id); return el ? el.value : ''; }
-
-    function getBaseConfig() {
-      var t = typeEl.value, data = '';
-      if (t === 'url') data = val('qrw-mainVal');
-      else if (t === 'wifi') data = 'WIFI:T:WPA;S:' + val('qrw-wifiSSID') + ';P:' + val('qrw-wifiPass') + ';;';
-      else if (t === 'vcard') data = 'BEGIN:VCARD\nFN:' + val('qrw-vName') + '\nTEL:' + val('qrw-vTel') + '\nEND:VCARD';
-      else if (t === 'whatsapp') data = 'https://wa.me/' + val('qrw-waNum').replace(/\D/g, '');
-      else if (t === 'location') data = 'geo:' + val('qrw-lat') + ',' + val('qrw-lng');
-      else if (t === 'pix') data = buildPix();
-      else if (t === 'barcode') data = val('qrw-barVal');
-      return {
-        data: data,
-        dotsOptions: { color: val('qrw-dotColor'), type: val('qrw-dotStyle') },
-        imageOptions: { hideBackgroundDots: true, imageSize: 0.4, margin: 0 }
+      var templates = {
+        url: '<input type="text" id="qrw-mainVal" placeholder="URL ou texto">',
+        wifi: '<input type="text" id="qrw-wifiSSID" placeholder="Nome da rede (SSID)"><input type="password" id="qrw-wifiPass" placeholder="Senha">',
+        vcard: '<input type="text" id="qrw-vName" placeholder="Nome"><input type="tel" id="qrw-vTel" placeholder="Telefone">',
+        whatsapp: '<input type="text" id="qrw-waNum" placeholder="Número (com DDD)">',
+        location: '<input type="text" id="qrw-lat" placeholder="Latitude"><input type="text" id="qrw-lng" placeholder="Longitude">',
+        pix: '<input type="text" id="qrw-pixKey" placeholder="Chave Pix (CPF, CNPJ, e-mail, telefone ou aleatoria)"><input type="text" id="qrw-pixName" placeholder="Nome do recebedor"><input type="text" id="qrw-pixCity" placeholder="Cidade do recebedor"><input type="text" id="qrw-pixAmount" placeholder="Valor (opcional, ex: 49.90)"><input type="text" id="qrw-pixTxid" placeholder="Identificador (opcional, ex: PEDIDO123)">',
+        barcode: '<input type="text" id="qrw-barVal" placeholder="Informação do código de barras (ex: 789102030405)"><div class="qrw-field"><label for="qrw-barFormat">Formato do Código</label><select id="qrw-barFormat"><option value="CODE128">CODE 128 (Recomendado - Suporta texto e números)</option><option value="EAN13">EAN-13 (13 dígitos)</option><option value="UPC">UPC (12 dígitos)</option><option value="CODE39">CODE 39</option></select></div>'
       };
-    }
 
-    loadLibs(function () {
-      var qrCode = new QRCodeStyling({
-        width: 250, height: 250,
-        dotsOptions: { type: 'extra-rounded', color: '#66fcf1' },
-        imageOptions: { hideBackgroundDots: true, imageSize: 0.4, margin: 0 }
-      });
-      
-      var previewContainer = $('qrw-preview');
-
-      function renderPreview() {
-        var t = typeEl.value;
-        var config = getBaseConfig();
-        
-        if (t === 'barcode') {
-          if (!config.data) { msg.textContent = 'Preencha os campos antes de gerar.'; return false; }
-          msg.textContent = '';
-          
-          previewContainer.innerHTML = '<svg id="qrw-barcodeSvg"></svg>';
-          var format = val('qrw-barFormat') || 'CODE128';
-          try {
-            JsBarcode("#qrw-barcodeSvg", config.data, {
-              format: format,
-              displayValue: true,
-              fontSize: 16,
-              lineColor: "#000000",
-              background: "#ffffff",
-              width: 2,
-              height: 100
-            });
-            return true;
-          } catch (e) {
-            msg.textContent = 'Erro ao gerar código de barras (verifique o formato/dados).';
-            return false;
-          }
-        } else {
-          if (!config.data) { msg.textContent = 'Preencha os campos antes de gerar.'; return false; }
-          msg.textContent = '';
-          
-          if (previewContainer.querySelector('#qrw-barcodeSvg')) {
-            previewContainer.innerHTML = '';
-            qrCode.append(previewContainer);
-          }
-          
-          config.width = 250; config.height = 250;
-          var file = $('qrw-logoUpload').files[0];
-          if (file) {
-            var reader = new FileReader();
-            reader.onload = function (e) {
-              config.image = e.target.result;
-              qrCode.update(config);
-            };
-            reader.readAsDataURL(file);
-          } else {
-            qrCode.update(config);
-          }
-          return true;
-        }
+      function pixClean(str, max) {
+        var out = (str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\x20-\x7E]/g, '').trim();
+        return max ? out.substring(0, max) : out;
       }
 
-      previewContainer.innerHTML = '';
-      qrCode.append(previewContainer);
+      function pixField(id, value) {
+        return id + String(value.length).padStart(2, '0') + value;
+      }
 
-      $('qrw-generateBtn').addEventListener('click', function () {
-        renderPreview();
-      });
-
-      $('qrw-downloadBtn').addEventListener('click', function () {
-        var t = typeEl.value;
-        var config = getBaseConfig();
-        if (!config.data) { msg.textContent = 'Preencha os campos antes de baixar.'; return; }
-        msg.textContent = '';
-        var qualityMultiplier = parseInt(val('qrw-resSelect'), 10) >= 1000 ? 2 : 1;
-
-        if (t === 'barcode') {
-          var svgEl = previewContainer.querySelector('svg');
-          if (!svgEl) {
-            renderPreview();
-            svgEl = previewContainer.querySelector('svg');
-          }
-          if (!svgEl) return;
-
-          var svgData = new XMLSerializer().serializeToString(svgEl);
-          var svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
-          var blobURL = URL.createObjectURL(svgBlob);
-          var image = new Image();
-          
-          image.onload = function() {
-            // Resolução otimizada para códigos de barras em alta qualidade (Proporção retangular limpa sem rebarbas exageradas)
-            var canvasWidth = 4000;
-            var canvasHeight = 1400;
-            
-            var canvas = document.createElement('canvas');
-            canvas.width = canvasWidth;
-            canvas.height = canvasHeight;
-            var context = canvas.getContext('2d');
-            
-            context.fillStyle = '#ffffff';
-            context.fillRect(0, 0, canvasWidth, canvasHeight);
-            
-            // Margens controladas para o código preencher perfeitamente sem distorcer ou cortar
-            var marginX = 100;
-            var marginY = 100;
-            context.drawImage(image, marginX, marginY, canvasWidth - (marginX * 2), canvasHeight - (marginY * 2));
-            
-            var a = document.createElement('a');
-            a.download = 'barcode-workin-hq.png';
-            a.href = canvas.toDataURL('image/png', 1.0);
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(blobURL);
-          };
-          image.src = blobURL;
-        } else {
-          var size = parseInt(val('qrw-resSelect'), 10);
-          config.width = size; config.height = size;
-          var file = $('qrw-logoUpload').files[0];
-          if (file) {
-            var reader = new FileReader();
-            reader.onload = function (e) {
-              config.image = e.target.result;
-              new QRCodeStyling(config).download({ name: 'qr-workin-hq', extension: 'png' });
-            };
-            reader.readAsDataURL(file);
-          } else {
-            new QRCodeStyling(config).download({ name: 'qr-workin-hq', extension: 'png' });
+      function pixCrc16(payload) {
+        var crc = 0xFFFF;
+        for (var i = 0; i < payload.length; i++) {
+          crc ^= payload.charCodeAt(i) << 8;
+          for (var b = 0; b < 8; b++) {
+            crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
+            crc &= 0xFFFF;
           }
         }
+        return crc.toString(16).toUpperCase().padStart(4, '0');
+      }
+
+      function buildPix() {
+        var key = pixClean(val('qrw-pixKey'), 77);
+        var name = pixClean(val('qrw-pixName'), 25).toUpperCase();
+        var city = pixClean(val('qrw-pixCity'), 15).toUpperCase();
+        if (!key || !name || !city) return '';
+        var amount = pixClean(val('qrw-pixAmount')).replace(/\s/g, '').replace(',', '.');
+        var txid = pixClean(val('qrw-pixTxid'), 25).replace(/[^A-Za-z0-9]/g, '') || '***';
+        var payload = pixField('00', '01')
+          + pixField('26', pixField('00', 'br.gov.bcb.pix') + pixField('01', key))
+          + pixField('52', '0000')
+          + pixField('53', '986');
+        if (amount && !isNaN(parseFloat(amount))) payload += pixField('54', parseFloat(amount).toFixed(2));
+        payload += pixField('58', 'BR')
+          + pixField('59', name)
+          + pixField('60', city)
+          + pixField('62', pixField('05', txid))
+          + '6304';
+        return payload + pixCrc16(payload);
+      }
+
+      var typeEl = $('qrw-type');
+      var dyn = $('qrw-dynamicInputs');
+
+      function updateFields() {
+        dyn.innerHTML = templates[typeEl.value] || '';
+        var isBarcode = (typeEl.value === 'barcode');
+        $('qrw-dotColorRow').style.display = isBarcode ? 'none' : 'grid';
+        $('qrw-logoUploadLabel').style.display = isBarcode ? 'none' : 'block';
+      }
+
+      typeEl.addEventListener('change', updateFields);
+      updateFields();
+
+      function val(id) { var el = $(id); return el ? el.value : ''; }
+
+      function getBaseConfig() {
+        var t = typeEl.value, data = '';
+        if (t === 'url') data = val('qrw-mainVal');
+        else if (t === 'wifi') data = 'WIFI:T:WPA;S:' + val('qrw-wifiSSID') + ';P:' + val('qrw-wifiPass') + ';;';
+        else if (t === 'vcard') data = 'BEGIN:VCARD\nFN:' + val('qrw-vName') + '\nTEL:' + val('qrw-vTel') + '\nEND:VCARD';
+        else if (t === 'whatsapp') data = 'https://wa.me/' + val('qrw-waNum').replace(/\D/g, '');
+        else if (t === 'location') data = 'geo:' + val('qrw-lat') + ',' + val('qrw-lng');
+        else if (t === 'pix') data = buildPix();
+        else if (t === 'barcode') data = val('qrw-barVal');
+        return {
+          data: data,
+          dotsOptions: { color: val('qrw-dotColor'), type: val('qrw-dotStyle') },
+          imageOptions: { hideBackgroundDots: true, imageSize: 0.4, margin: 0 }
+        };
+      }
+
+      loadLibs(function () {
+        var qrCode = new QRCodeStyling({
+          width: 250, height: 250,
+          dotsOptions: { type: 'extra-rounded', color: '#66fcf1' },
+          imageOptions: { hideBackgroundDots: true, imageSize: 0.4, margin: 0 }
+        });
+
+        var previewContainer = $('qrw-preview');
+
+        function renderPreview() {
+          var t = typeEl.value;
+          var config = getBaseConfig();
+
+          if (t === 'barcode') {
+            if (!config.data) { msg.textContent = 'Preencha os campos antes de gerar.'; return false; }
+            msg.textContent = '';
+
+            previewContainer.innerHTML = '<svg id="qrw-barcodeSvg"></svg>';
+            var format = val('qrw-barFormat') || 'CODE128';
+            try {
+              JsBarcode("#qrw-barcodeSvg", config.data, {
+                format: format,
+                displayValue: true,
+                fontSize: 16,
+                lineColor: "#000000",
+                background: "#ffffff",
+                width: 2,
+                height: 100
+              });
+              return true;
+            } catch (e) {
+              msg.textContent = 'Erro ao gerar código de barras (verifique o formato/dados).';
+              return false;
+            }
+          } else {
+            if (!config.data) { msg.textContent = 'Preencha os campos antes de gerar.'; return false; }
+            msg.textContent = '';
+
+            if (previewContainer.querySelector('#qrw-barcodeSvg')) {
+              previewContainer.innerHTML = '';
+              qrCode.append(previewContainer);
+            }
+
+            config.width = 250; config.height = 250;
+            var file = $('qrw-logoUpload').files[0];
+            if (file) {
+              var reader = new FileReader();
+              reader.onload = function (e) {
+                config.image = e.target.result;
+                qrCode.update(config);
+              };
+              reader.readAsDataURL(file);
+            } else {
+              qrCode.update(config);
+            }
+            return true;
+          }
+        }
+
+        previewContainer.innerHTML = '';
+        qrCode.append(previewContainer);
+
+        $('qrw-generateBtn').addEventListener('click', function () {
+          renderPreview();
+        });
+
+        $('qrw-downloadBtn').addEventListener('click', function () {
+          var t = typeEl.value;
+          var config = getBaseConfig();
+          if (!config.data) { msg.textContent = 'Preencha os campos antes de baixar.'; return; }
+          msg.textContent = '';
+          var qualityMultiplier = parseInt(val('qrw-resSelect'), 10) >= 1000 ? 2 : 1;
+
+          if (t === 'barcode') {
+            var svgEl = previewContainer.querySelector('svg');
+            if (!svgEl) {
+              renderPreview();
+              svgEl = previewContainer.querySelector('svg');
+            }
+            if (!svgEl) return;
+
+            var svgData = new XMLSerializer().serializeToString(svgEl);
+            var svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            var blobURL = URL.createObjectURL(svgBlob);
+            var image = new Image();
+
+            image.onload = function() {
+              var canvasWidth = 4000;
+              var canvasHeight = 1400;
+
+              var canvas = document.createElement('canvas');
+              canvas.width = canvasWidth;
+              canvas.height = canvasHeight;
+              var context = canvas.getContext('2d');
+
+              context.fillStyle = '#ffffff';
+              context.fillRect(0, 0, canvasWidth, canvasHeight);
+
+              var marginX = 100;
+              var marginY = 100;
+              context.drawImage(image, marginX, marginY, canvasWidth - (marginX * 2), canvasHeight - (marginY * 2));
+
+              var a = document.createElement('a');
+              a.download = 'barcode-workin-hq.png';
+              a.href = canvas.toDataURL('image/png', 1.0);
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(blobURL);
+            };
+            image.src = blobURL;
+          } else {
+            var size = parseInt(val('qrw-resSelect'), 10);
+            config.width = size; config.height = size;
+            var file = $('qrw-logoUpload').files[0];
+            if (file) {
+              var reader = new FileReader();
+              reader.onload = function (e) {
+                config.image = e.target.result;
+                new QRCodeStyling(config).download({ name: 'qr-workin-hq', extension: 'png' });
+              };
+              reader.readAsDataURL(file);
+            } else {
+              new QRCodeStyling(config).download({ name: 'qr-workin-hq', extension: 'png' });
+            }
+          }
+        });
       });
-    });
-  })();
-  </script>
-</div>
-
-
-  </section>
-
+    })();
+    </script>
+  </div>
+</section>
 
   <!-- Footer -->
   <footer>
@@ -417,6 +423,10 @@
                 <div class="form-group">
                   <label for="produto-preco">Preço</label>
                   <input type="number" id="produto-preco" step="0.01" required>
+                  <label class="negociar-check">
+                    <input type="checkbox" id="produto-preco-negociar">
+                    <span>Preço a negociar (não informar valor)</span>
+                  </label>
                 </div>
                 <div class="form-group full">
                   <label for="produto-descricao">Descrição</label>
