@@ -7,9 +7,16 @@
   <link rel="manifest" href="manifest.json">
   <meta name="description" content="Catálogo de produtos gamer com menu personalizável, admin exclusivo e integração Firebase.">
   <link rel="icon" type="image/x-icon" href="fav.ico">
+  <meta property="og:title" content="Workin'Store | Portal">
+  <meta property="og:description" content="Kits OPL, pendrives, Memory Cards PS2, cabos e carregadores com envio para todo o Brasil.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+  <!-- Botão de tema (canto superior esquerdo) -->
+  <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Alternar tema" title="Alternar tema claro/escuro">🌙</button>
 
   <!-- Header / Navbar -->
   <header id="main-header">
@@ -157,6 +164,10 @@
                 <div class="form-group">
                   <label for="produto-preco">Preço</label>
                   <input type="number" id="produto-preco" step="0.01" required>
+                  <label class="negociar-check">
+                    <input type="checkbox" id="produto-preco-negociar">
+                    <span>Preço a negociar (não informar valor)</span>
+                  </label>
                 </div>
                 <div class="form-group full">
                   <label for="produto-descricao">Descrição</label>
