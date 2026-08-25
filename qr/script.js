@@ -40,7 +40,8 @@ const state = {
   bannerEditingId: null,
   bannerIndex: 0,
   bannerTimer: null,
-  search: ""
+  search: "",
+  theme: "dark"
 };
 
 /* ============================================================
@@ -73,6 +74,11 @@ function toBase64(file) {
 function formatMoney(value) {
   if (!value && value !== 0) return "—";
   return Number(value).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+function priceLabel(p) {
+  if (p && p.priceNegotiable) return "A negociar";
+  return formatMoney(p ? p.price : null);
 }
 
 function escapeHtml(str) {
@@ -123,6 +129,57 @@ function setCheckedValues(selector, values) {
 }
 
 /* ============================================================
+   TEMA (ESCURO PADRÃO / CLARO)
+   ============================================================ */
+const THEME_KEY = "ws-theme";
+
+function applyTheme(theme) {
+  const light = theme === "light";
+  document.body.classList.toggle("light-theme", light);
+  const btn = document.getElementById("theme-toggle");
+  if (btn) {
+    btn.textContent = light ? "☀️" : "🌙";
+    btn.title = light ? "Ativar tema escuro" : "Ativar tema claro";
+  }
+  state.theme = light ? "light" : "dark";
+}
+
+function initTheme() {
+  let saved = "dark";
+  try {
+    saved = localStorage.getItem(THEME_KEY) || "dark";
+  } catch (e) {}
+  applyTheme(saved);
+}
+
+function toggleTheme() {
+  const next = state.theme === "light" ? "dark" : "light";
+  applyTheme(next);
+  try {
+    localStorage.setItem(THEME_KEY, next);
+  } catch (e) {}
+  if (state.isAdmin) saveAdminTheme(next);
+}
+
+function saveAdminTheme(theme) {
+  db.ref("preferences/admin/theme").set(theme).catch(() => {});
+}
+
+function loadAdminTheme() {
+  db.ref("preferences/admin/theme").once("value")
+    .then((snap) => {
+      const theme = snap.val();
+      if (theme === "light" || theme === "dark") {
+        applyTheme(theme);
+        try {
+          localStorage.setItem(THEME_KEY, theme);
+        } catch (e) {}
+      }
+    })
+    .catch(() => {});
+}
+
+/* ============================================================
    AUTENTICAÇÃO
    ============================================================ */
 auth.onAuthStateChanged((user) => {
@@ -130,6 +187,7 @@ auth.onAuthStateChanged((user) => {
   state.isAdmin = user && user.email === "admin@admin.com";
   updateAuthUI();
   loadData();
+  if (state.isAdmin) loadAdminTheme();
 });
 
 function updateAuthUI() {
@@ -524,7 +582,7 @@ function buildCard(p) {
       <div class="card-body">
         <h3 class="card-title">${escapeHtml(p.title)}</h3>
         <p class="card-desc">${escapeHtml(p.description)}</p>
-        <p class="card-price">${formatMoney(p.price)}</p>
+        <p class="card-price">${priceLabel(p)}</p>
       </div>
     </article>
   `;
@@ -559,7 +617,7 @@ function openProdutoModal(id) {
   document.getElementById("modal-title").textContent = p.title || "Produto";
   document.getElementById("modal-desc").textContent = p.description || "";
   document.getElementById("modal-cities").textContent = p.cities || "Nacional";
-  document.getElementById("modal-price").textContent = formatMoney(p.price);
+  document.getElementById("modal-price").textContent = priceLabel(p);
   document.getElementById("modal-buy").href = p.buyLink || "#";
 
   const triggers = (p.triggers || []).map((t) => {
@@ -583,7 +641,7 @@ function renderAdminProdutos() {
       <input type="number" class="order-input" min="1" step="1" value="${i + 1}" data-id="${p.id}" title="Posição (digite o número e pressione Enter)">
       <div>
         <strong>${escapeHtml(p.title)}</strong>
-        <br><small>${formatMoney(p.price)} — ${escapeHtml(p.description || "").substring(0, 60)}${p.description && p.description.length > 60 ? "..." : ""}</small>
+        <br><small>${priceLabel(p)} — ${escapeHtml(p.description || "").substring(0, 60)}${p.description && p.description.length > 60 ? "..." : ""}</small>
       </div>
       <div class="admin-list-actions">
         <button class="btn-save" onclick="editProduto('${p.id}')">Editar</button>
@@ -616,7 +674,10 @@ async function saveProduto(e) {
   const title = document.getElementById("produto-titulo").value.trim();
   const description = document.getElementById("produto-descricao").value.trim();
   const cities = document.getElementById("produto-cidades").value.trim();
-  const price = parseFloat(document.getElementById("produto-preco").value.replace(",", "."));
+  const priceNegotiable = document.getElementById("produto-preco-negociar").checked;
+  const price = priceNegotiable
+    ? null
+    : parseFloat(document.getElementById("produto-preco").value.replace(",", "."));
   const buyLink = document.getElementById("produto-comprar").value.trim();
   const triggers = getCheckedValues("input[name='trigger']");
 
@@ -631,7 +692,12 @@ async function saveProduto(e) {
   const existing = state.produtos.find((x) => x.id === state.editingId);
   const order = existing && typeof existing.order === "number" ? existing.order : nextOrder(state.produtos);
 
-  const data = { title, description, cities, price, buyLink, image, triggers, order };
+  if (!priceNegotiable && !(price >= 0)) {
+    showToast("Informe o preço ou marque \"Preço a negociar\".", "error");
+    return;
+  }
+
+  const data = { title, description, cities, price: priceNegotiable ? null : price, priceNegotiable, buyLink, image, triggers, order };
   const ref = state.editingId
     ? db.ref("produtos/" + state.editingId)
     : db.ref("produtos").push();
@@ -651,7 +717,9 @@ function editProduto(id) {
   document.getElementById("produto-titulo").value = p.title || "";
   document.getElementById("produto-descricao").value = p.description || "";
   document.getElementById("produto-cidades").value = p.cities || "";
-  document.getElementById("produto-preco").value = p.price || "";
+  document.getElementById("produto-preco").value = p.priceNegotiable ? "" : (p.price || "");
+  document.getElementById("produto-preco-negociar").checked = !!p.priceNegotiable;
+  applyNegotiableState();
   document.getElementById("produto-comprar").value = p.buyLink || "";
   document.getElementById("produto-imagem-url").value = p.image || "";
   setCheckedValues("input[name='trigger']", p.triggers || []);
@@ -668,9 +736,24 @@ function deleteProduto(id) {
     .catch((err) => showToast("Erro: " + err.message, "error"));
 }
 
+function applyNegotiableState() {
+  const check = document.getElementById("produto-preco-negociar");
+  const input = document.getElementById("produto-preco");
+  if (!check || !input) return;
+  if (check.checked) {
+    input.value = "";
+    input.disabled = true;
+    input.required = false;
+  } else {
+    input.disabled = false;
+    input.required = true;
+  }
+}
+
 function resetProdutoForm() {
   state.editingId = null;
   document.getElementById("produto-form").reset();
+  applyNegotiableState();
   setCheckedValues("input[name='trigger']", []);
   document.getElementById("produto-form-title").textContent = "Adicionar produto";
   document.getElementById("produto-cancel").classList.add("hidden");
@@ -1042,6 +1125,10 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("banner-cancel").addEventListener("click", resetBannerForm);
   document.getElementById("banner-prev").addEventListener("click", prevBanner);
   document.getElementById("banner-next").addEventListener("click", nextBanner);
+
+  initTheme();
+  document.getElementById("theme-toggle").addEventListener("click", toggleTheme);
+  document.getElementById("produto-preco-negociar").addEventListener("change", applyNegotiableState);
 
   document.getElementById("produto-form").addEventListener("submit", saveProduto);
   document.getElementById("produto-cancel").addEventListener("click", resetProdutoForm);
