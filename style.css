@@ -1504,10 +1504,16 @@ body.light-theme {
 }
 
 body.light-theme .card,
-body.light-theme .search-wrap,
-body.light-theme .footer-content {
+body.light-theme .search-wrap {
   background: #ffffff;
   border-color: #c5ccd4;
+}
+
+/* Rodapé uniforme no tema claro (sem bloco branco atrás dos links) */
+body.light-theme .footer-content {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
 }
 
 body.light-theme .modal,
@@ -1565,6 +1571,10 @@ body.light-theme .admin-nav {
 body.light-theme footer,
 body.light-theme .footer-bottom {
   background: #d8dde3;
+}
+
+body.light-theme .footer-bottom {
+  border-top-color: rgba(17, 24, 39, 0.1);
 }
 
 body.light-theme .hero {
