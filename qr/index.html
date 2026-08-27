@@ -42,7 +42,7 @@
   </div>
 
   <!-- Hero -->
-  <link rel="stylesheet" href="style.css">
+  <<link rel="stylesheet" href="style.css">
   <!-- Estilos internos específicos do gerador QR (não existem no style.css) -->
   <style>
     .qrw{--qrw-primary:var(--primary,#66fcf1);--qrw-dim:var(--primary-dim,#45a29e);--qrw-surface:var(--surface,rgba(31,40,51,.85));--qrw-bg:var(--bg,#0b0c10);--qrw-text:var(--text,#f5f5f5);--qrw-muted:var(--text-muted,#a0a0a0);--qrw-radius:var(--radius,12px);--qrw-transition:var(--transition,.3s cubic-bezier(.25,.8,.25,1));--qrw-line:rgba(102,252,241,.15)}
@@ -50,29 +50,43 @@
     .qrw .qrw-head{font-size:1.8rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:.6rem;color:var(--qrw-text)}
     .qrw .qrw-head::before{content:'';width:6px;height:28px;background:var(--qrw-primary);border-radius:3px}
     .qrw .qrw-sub{color:var(--qrw-muted);margin:-1rem 0 1.75rem;font-size:.95rem}
-    .qrw .qrw-panel{background:var(--qrw-surface);border:1px solid rgba(102,252,241,.1);border-radius:var(--qrw-radius);padding:1.75rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem;transition:var(--qrw-transition)}
+    .qrw .qrw-panel{background:var(--qrw-surface);border:1px solid rgba(102,252,241,.1);border-radius:var(--qrw-radius);padding:1.75rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem;transition:var(--qrw-transition);width:100%;max-width:100%;overflow:hidden}
     .qrw .qrw-panel:hover{border-color:rgba(102,252,241,.25)}
-    .qrw .qrw-stack{display:flex;flex-direction:column;gap:1rem}
-    .qrw .qrw-field{display:flex;flex-direction:column;gap:.4rem}
+    .qrw .qrw-stack{display:flex;flex-direction:column;gap:1rem;min-width:0}
+    .qrw .qrw-field{display:flex;flex-direction:column;gap:.4rem;width:100%;min-width:0}
     .qrw .qrw-field > label,.qrw .qrw-legend{font-size:.85rem;color:var(--qrw-muted);font-weight:600}
     .qrw .qrw-legend{text-transform:uppercase;letter-spacing:.05em;font-size:.7rem}
-    .qrw input,.qrw select{width:100%;background:var(--qrw-bg);border:1px solid var(--qrw-line);border-radius:8px;padding:.75rem 1rem;color:var(--qrw-text);font-family:inherit;font-size:.95rem;transition:var(--qrw-transition)}
+    .qrw input,.qrw select{width:100%;max-width:100%;background:var(--qrw-bg);border:1px solid var(--qrw-line);border-radius:8px;padding:.75rem 1rem;color:var(--qrw-text);font-family:inherit;font-size:.95rem;transition:var(--qrw-transition)}
     .qrw input:focus,.qrw select:focus{outline:none;border-color:var(--qrw-primary);box-shadow:0 0 0 3px rgba(102,252,241,.1)}
     .qrw input[type=color]{padding:4px;height:46px;cursor:pointer}
-    .qrw #qrw-dynamicInputs{display:flex;flex-direction:column;gap:.6rem}
-    .qrw .qrw-row{display:grid;grid-template-columns:70px 1fr;gap:.6rem}
+    .qrw #qrw-dynamicInputs{display:flex;flex-direction:column;gap:.6rem;width:100%;min-width:0}
+    .qrw .qrw-row{display:grid;grid-template-columns:70px 1fr;gap:.6rem;width:100%}
     .qrw .qrw-upload{display:block;padding:.75rem;background:rgba(102,252,241,.06);text-align:center;cursor:pointer;border-radius:8px;border:1px dashed rgba(102,252,241,.3);color:var(--qrw-muted);font-size:.9rem;font-weight:600;transition:var(--qrw-transition)}
     .qrw .qrw-upload:hover{background:rgba(102,252,241,.12);color:var(--qrw-primary);border-color:var(--qrw-primary)}
-    .qrw .qrw-preview-side{display:flex;flex-direction:column;gap:.85rem}
+    .qrw .qrw-preview-side{display:flex;flex-direction:column;gap:.85rem;min-width:0;align-items:center}
     .qrw .qrw-canvas{background:#fff;padding:15px;border-radius:var(--qrw-radius);display:flex;justify-content:center;align-items:center;box-shadow:var(--shadow,0 0 20px rgba(102,252,241,.15));width:100%;max-width:280px;aspect-ratio:1;margin:0 auto;overflow:hidden}
-    .qrw .qrw-canvas svg{width:100%;height:100%;object-fit:contain}
+    
+    /* Correção crucial para o SVG do QR Code estourar as margens no mobile */
+    .qrw .qrw-canvas svg, 
+    .qrw .qrw-canvas canvas {
+      width: 100% !important;
+      height: 100% !important;
+      max-width: 100% !important;
+      max-height: 100% !important;
+      object-fit: contain;
+    }
+
     .qrw .qrw-btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;width:100%;font-family:inherit;font-weight:700;padding:.85rem 1.5rem;border:none;border-radius:var(--qrw-radius);cursor:pointer;text-transform:uppercase;letter-spacing:.03em;transition:var(--qrw-transition)}
     .qrw .qrw-btn-primary{background:linear-gradient(90deg,var(--qrw-primary),var(--qrw-dim));color:var(--qrw-bg)}
     .qrw .qrw-btn-primary:hover{box-shadow:0 0 25px rgba(102,252,241,.35);transform:translateY(-2px)}
     .qrw .qrw-btn-ghost{background:transparent;color:var(--qrw-primary);border:1px solid rgba(102,252,241,.35)}
     .qrw .qrw-btn-ghost:hover{background:rgba(102,252,241,.1);transform:translateY(-2px)}
     .qrw .qrw-msg{min-height:1.2rem;font-size:.8rem;color:var(--danger,#ff4d4d);text-align:center}
-    @media (max-width:768px){.qrw .qrw-panel{grid-template-columns:1fr;padding:1.25rem;gap:1.5rem}}
+    
+    @media (max-width:768px){
+      .qrw .qrw-panel{grid-template-columns:1fr;padding:1rem;gap:1.5rem;width:100%;box-sizing:border-box}
+      .qrw{width:100%;max-width:100%;overflow-x:hidden}
+    }
   </style>
 
 <!-- Hero -->
@@ -313,7 +327,6 @@
           var config = getBaseConfig();
           if (!config.data) { msg.textContent = 'Preencha os campos antes de baixar.'; return; }
           msg.textContent = '';
-          var qualityMultiplier = parseInt(val('qrw-resSelect'), 10) >= 1000 ? 2 : 1;
 
           if (t === 'barcode') {
             var svgEl = previewContainer.querySelector('svg');
@@ -374,6 +387,7 @@
     </script>
   </div>
 </section>
+
 
   <!-- Footer -->
   <footer>
